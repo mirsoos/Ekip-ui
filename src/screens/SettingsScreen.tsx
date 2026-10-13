@@ -5,6 +5,7 @@ import { GlassSheet } from '@/components/Overlays';
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import { SettingsDivider } from '@/components/settings/SettingsDivider';
 import { PremiumFeatureRow } from '@/components/settings/PremiumFeatureRow';
+import { getIcon } from '@/lib/icons';
 import { useTheme } from '@/lib/theme';
 
 interface SettingsScreenProps {
@@ -24,6 +25,10 @@ export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpen
   const { theme, toggle } = useTheme();
   const [showPremium, setShowPremium] = useState(false);
 
+  const ChevronRight = getIcon('ChevronRight');
+  const Moon = getIcon('Moon');
+  const Sun = getIcon('Sun');
+  const Crown = getIcon('Crown');
 
   return (
     <div className="h-full overflow-y-auto no-scrollbar screen-enter-items">

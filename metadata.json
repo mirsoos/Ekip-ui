@@ -1,7 +1,7 @@
 {
-  "name": "EKIP — Authenticator, Passwords & Devices",
-  "description": "Secure 2FA Authenticator, Encrypted Password Manager, Trusted Devices, and Privacy & Security Command Center.",
-  "prompt": "Secure 2FA Authenticator, password manager, trusted devices and security app",
+  "name": "EKIP — Tactical Operations & Defense Command",
+  "description": "Elite military unit coordination, tactical squad operations, secure communication, real-time telemetry, and mission readiness command platform.",
+  "prompt": "Military tactical unit command and squad operations app",
   "capabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

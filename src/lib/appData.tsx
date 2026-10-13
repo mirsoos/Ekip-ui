@@ -33,8 +33,6 @@ interface AppData {
   updateFriend: (id: string, status: Friendship['status']) => void;
   addNotification: (n: Omit<Notification, 'id' | 'user_id' | 'created_at' | 'is_read'>) => void;
   updateMe: (updates: Partial<Profile>) => void;
-  language: 'en' | 'fa';
-  setLanguage: (lang: 'en' | 'fa') => void;
 }
 
 const AppDataContext = createContext<AppData | null>(null);
@@ -47,7 +45,6 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Record<string, Message[]>>(demoMessages);
   const [notifications, setNotifications] = useState<Notification[]>(demoNotifications);
   const [friends, setFriends] = useState<Friendship[]>(demoFriends);
-  const [language, setLanguage] = useState<'en' | 'fa'>('en');
 
   const profiles = [me, ...demoProfiles.slice(1)];
   const members = demoMembers;
@@ -145,7 +142,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         notifications, badges, missions, friends,
         addGroup, addRequest, updateRequest, addMessage, markConversationRead,
         markNotificationRead, markAllNotificationsRead, addFriend, updateFriend, addNotification,
-        updateMe, language, setLanguage,
+        updateMe,
       }}
     >
       {children}

@@ -130,7 +130,7 @@ export function PrivacyScreen({ onBack }: PrivacyScreenProps) {
   };
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-10">
+    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-28">
       {/* Sticky Liquid Glass Navigation Header */}
       <div className="sticky top-0 z-30 glass glass-specular px-5 pt-3 pb-3 border-b border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export function PrivacyScreen({ onBack }: PrivacyScreenProps) {
                   src={me.avatar_url}
                   name={`${me.first_name} ${me.last_name}`}
                   size={58}
-                  
+                  className="ring-2 ring-pink-500/60"
                 />
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-md ring-2 ring-[rgb(var(--bg-canvas))]">
                   {ghostMode ? <EyeOff size={13} strokeWidth={2.6} /> : <ShieldCheck size={13} strokeWidth={2.6} />}

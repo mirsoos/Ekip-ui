@@ -262,7 +262,7 @@ export function NotificationsScreen({
   };
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-10">
+    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-28">
       {/* Sticky Liquid Glass Navigation Header */}
       <div className="sticky top-0 z-30 glass glass-specular px-5 pt-3 pb-3 border-b border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between">
@@ -342,9 +342,8 @@ export function NotificationsScreen({
       </div>
 
       <div className="px-5 mt-4 space-y-4">
-        <div key={activeTab} className="animate-fade space-y-4">
         {activeTab === 'feed' ? (
-          <div key={filter} className="animate-fade space-y-4">
+          <>
             {/* Filter Pills Bar */}
             <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar py-0.5">
               <div className="flex items-center gap-1.5 shrink-0">
@@ -535,7 +534,7 @@ export function NotificationsScreen({
                 })}
               </div>
             )}
-          </div>
+          </>
         ) : (
           /* Preferences / Delivery Channels View */
           <div className="space-y-5">
@@ -859,7 +858,6 @@ export function NotificationsScreen({
             </SettingsSection>
           </div>
         )}
-        </div>
       </div>
 
       {/* Toast Feedback */}

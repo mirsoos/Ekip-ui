@@ -199,17 +199,15 @@ export function GlassInput({
 // ============================================
 interface GlassAvatarProps {
   src?: string | null;
-  name?: string;
-  alt?: string;
-  size?: number | string;
+  name: string;
+  size?: number;
   className?: string;
   ring?: boolean;
   online?: boolean;
 }
 
-export function GlassAvatar({ src, name = 'User', alt, size = 44, className = '', ring = true, online }: GlassAvatarProps) {
-  const displayName = name || alt || 'User';
-  const initials = displayName.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+export function GlassAvatar({ src, name, size = 44, className = '', ring = true, online }: GlassAvatarProps) {
+  const initials = name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
   return (
     <div className={`relative shrink-0 ${className}`} style={{ width: size, height: size }}>
       <div

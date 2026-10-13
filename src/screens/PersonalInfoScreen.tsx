@@ -158,7 +158,7 @@ export function PersonalInfoScreen({ onBack, onOpenVerification }: PersonalInfoS
   };
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-10">
+    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-28">
       {/* Sticky Liquid Glass Navigation Header */}
       <div className="sticky top-0 z-30 glass glass-specular px-5 pt-3 pb-3 border-b border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between">
@@ -210,7 +210,7 @@ export function PersonalInfoScreen({ onBack, onOpenVerification }: PersonalInfoS
                 src={avatarUrl}
                 name={`${firstName} ${lastName}`}
                 size={80}
-                
+                className="ring-4 ring-[rgb(var(--bg-canvas))]"
               />
               <button
                 type="button"

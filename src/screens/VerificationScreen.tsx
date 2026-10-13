@@ -145,7 +145,7 @@ export function VerificationScreen({ onBack }: VerificationScreenProps) {
   };
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-10">
+    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-28">
       {/* Sticky Liquid Glass Navigation Header */}
       <div className="sticky top-0 z-30 glass glass-specular px-5 pt-3 pb-3 border-b border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between">

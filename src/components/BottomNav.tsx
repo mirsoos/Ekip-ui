@@ -11,10 +11,10 @@ interface BottomNavProps {
 }
 
 const tabs: { key: TabKey; label: string; icon: IconName }[] = [
-  { key: 'discover', label: '2FA', icon: 'ShieldCheck' },
-  { key: 'activity', label: 'Vault', icon: 'Lock' },
-  { key: 'create', label: 'Add', icon: 'Plus' },
-  { key: 'chat', label: 'Devices', icon: 'Smartphone' },
+  { key: 'discover', label: 'Discover', icon: 'Compass' },
+  { key: 'activity', label: 'My Ekip', icon: 'Layers' },
+  { key: 'create', label: 'Create', icon: 'Plus' },
+  { key: 'chat', label: 'Chats', icon: 'MessageCircle' },
   { key: 'profile', label: 'Profile', icon: 'User' },
 ];
 
