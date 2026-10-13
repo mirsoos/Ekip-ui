@@ -73,7 +73,7 @@ export function RequestsModal({
                 </button>
 
                 {r.message && (
-                  <p className="text-foot text-secondary italic bg-black/5 dark:bg-white/5 rounded-xl p-2.5">
+                  <p className="text-foot text-secondary italic bg-black/5 dark:bg-black/50 dark:border dark:border-white/5 rounded-xl p-2.5">
                     "{r.message}"
                   </p>
                 )}

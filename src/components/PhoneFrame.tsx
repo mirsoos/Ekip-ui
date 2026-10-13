@@ -12,22 +12,34 @@ export function AuroraBackground() {
             'linear-gradient(160deg, rgb(var(--bg-canvas)) 0%, rgb(var(--bg-canvas-2)) 40%, rgb(var(--bg-canvas-3)) 75%, rgb(var(--bg-canvas-4)) 100%)',
         }}
       />
-      {/* Floating color blobs — the source of refraction */}
+      {/* Floating color blobs — the source of liquid chromatic refraction */}
       <div
-        className="absolute -top-20 -left-20 w-[420px] h-[420px] rounded-full blur-[90px] opacity-50 animate-blob"
-        style={{ background: 'radial-gradient(circle, rgb(244 114 182 / 0.55), transparent 70%)' }}
+        className="absolute -top-16 -left-16 w-[440px] h-[440px] rounded-full blur-[85px] opacity-60 dark:opacity-20 animate-blob"
+        style={{
+          background:
+            'radial-gradient(circle, rgb(56 189 248 / 0.65) 0%, rgb(168 85 247 / 0.40) 45%, transparent 70%)',
+        }}
       />
       <div
-        className="absolute top-1/3 -right-24 w-[380px] h-[380px] rounded-full blur-[100px] opacity-45 animate-blob-rev"
-        style={{ background: 'radial-gradient(circle, rgb(59 130 246 / 0.5), transparent 70%)' }}
+        className="absolute top-1/4 -right-20 w-[420px] h-[420px] rounded-full blur-[90px] opacity-55 dark:opacity-18 animate-blob-rev"
+        style={{
+          background:
+            'radial-gradient(circle, rgb(244 114 182 / 0.60) 0%, rgb(59 130 246 / 0.45) 50%, transparent 70%)',
+        }}
       />
       <div
-        className="absolute -bottom-32 left-1/4 w-[460px] h-[460px] rounded-full blur-[110px] opacity-40 animate-blob"
-        style={{ background: 'radial-gradient(circle, rgb(168 85 247 / 0.35), transparent 70%)' }}
+        className="absolute -bottom-28 left-1/5 w-[480px] h-[480px] rounded-full blur-[100px] opacity-50 dark:opacity-15 animate-blob"
+        style={{
+          background:
+            'radial-gradient(circle, rgb(168 85 247 / 0.50) 0%, rgb(251 191 36 / 0.35) 45%, transparent 70%)',
+        }}
       />
       <div
-        className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full blur-[80px] opacity-30 animate-blob-rev"
-        style={{ background: 'radial-gradient(circle, rgb(16 185 129 / 0.3), transparent 70%)' }}
+        className="absolute top-1/2 left-1/3 w-[340px] h-[340px] rounded-full blur-[75px] opacity-40 dark:opacity-15 animate-blob-rev"
+        style={{
+          background:
+            'radial-gradient(circle, rgb(56 189 248 / 0.50) 0%, rgb(244 114 182 / 0.35) 60%, transparent 70%)',
+        }}
       />
       {/* Subtle grain for realism */}
       <div

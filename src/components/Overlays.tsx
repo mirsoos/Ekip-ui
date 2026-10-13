@@ -33,7 +33,7 @@ export function GlassSheet({ open, onClose, children, title, fullHeight, content
 
   return (
     <div className="screen-overlay absolute inset-0 z-50 flex items-end" onClick={onClose}>
-      <div key={`backdrop-${open}`} className={`absolute inset-0 bg-black/45 backdrop-blur-[24px] ${open ? 'animate-fade' : 'animate-fade-out'}`} />
+      <div key={`backdrop-${open}`} className={`absolute inset-0 bg-black/45 dark:bg-black/75 backdrop-blur-[24px] ${open ? 'animate-fade' : 'animate-fade-out'}`} />
       <div
         key={`sheet-${open}`}
         onClick={(e) => e.stopPropagation()}
@@ -81,7 +81,7 @@ export function GlassDialog({ open, onClose, title, body, children, actions }: G
   if (!isRendered) return null;
   return (
     <div className="screen-overlay absolute inset-0 z-[60] flex items-center justify-center p-6" onClick={onClose}>
-      <div className={`absolute inset-0 bg-black/40 backdrop-blur-[8px] ${open ? 'animate-fade' : 'animate-fade-out'}`} />
+      <div className={`absolute inset-0 bg-black/40 dark:bg-black/75 backdrop-blur-[8px] ${open ? 'animate-fade' : 'animate-fade-out'}`} />
       <div
         onClick={(e) => e.stopPropagation()}
         className={`relative w-full max-w-[340px] glass-thick glass-specular glass-edge rounded-[28px] p-6 ${open ? 'animate-scale-in' : 'animate-scale-out'}`}

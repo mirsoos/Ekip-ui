@@ -51,7 +51,7 @@ export function EkipCard({ group, onClick, variant = 'default' }: { group: Group
   }
 
   return (
-    <GlassCard onClick={onClick} className={`rounded-[28px] overflow-hidden ${variant === 'featured' ? '' : ''}`}>
+    <GlassCard caustic glow={variant === 'featured'} onClick={onClick} className="rounded-[28px] overflow-hidden">
       {/* Cover */}
       <div className="relative h-40 overflow-hidden">
         <div

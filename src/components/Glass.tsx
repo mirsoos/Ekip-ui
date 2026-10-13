@@ -11,17 +11,31 @@ interface GlassCardProps {
   specular?: boolean;
   edge?: boolean;
   glow?: boolean;
+  caustic?: boolean;
   onClick?: () => void;
   style?: CSSProperties;
 }
 
 export function GlassCard({
-  children, className = '', variant = 'default',
-  specular = true, edge = true, glow = false, onClick, style,
+  children,
+  className = '',
+  variant = 'default',
+  specular = true,
+  edge = true,
+  glow = false,
+  caustic = false,
+  onClick,
+  style,
 }: GlassCardProps) {
   const base = variant === 'thick' ? 'glass-thick' : variant === 'thin' ? 'glass-thin' : 'glass';
-  const mods = [specular && 'glass-specular', edge && 'glass-edge', glow && 'glass-glow']
-    .filter(Boolean).join(' ');
+  const mods = [
+    specular && 'glass-specular',
+    edge && 'glass-edge',
+    glow && 'glass-glow',
+    caustic && 'glass-caustic glass-caustic-drift',
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
     <div
       onClick={onClick}

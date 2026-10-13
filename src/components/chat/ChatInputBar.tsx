@@ -25,7 +25,7 @@ export function ChatInputBar({
   };
 
   return (
-    <div className={`px-4 pb-4 pt-2 ${className}`}>
+    <div className={`px-4 pb-5 pb-safe pt-2 ${className}`}>
       <div className="glass-thick glass-specular glass-edge rounded-3xl p-1.5 flex items-center gap-2 shadow-lg">
         <input
           value={value}
