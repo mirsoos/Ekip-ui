@@ -150,6 +150,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppData() {
   const ctx = useContext(AppDataContext);
   if (!ctx) throw new Error('useAppData must be used within AppDataProvider');

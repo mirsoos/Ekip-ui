@@ -28,11 +28,11 @@ export function NotificationItem({ notification, onClick, index = 0 }: Notificat
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left animate-rise-d${Math.min(index, 5)} spring-press cursor-pointer`}
+      className={`w-full text-left spring-press cursor-pointer animate-rise-d${Math.min(index, 5)}`}
     >
       <GlassCard
         variant={notification.is_read ? 'thin' : 'default'}
-        className={`rounded-3xl p-3 flex items-start gap-3 ${
+        className={`rounded-3xl p-3 flex items-start gap-3 transition-all ${
           notification.is_read ? '' : 'ring-1 ring-pink-500/25 shadow-sm'
         }`}
       >

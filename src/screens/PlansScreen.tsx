@@ -9,7 +9,7 @@ export function PlansScreen({ onBack }: PlansScreenProps) {
   const Crown = getIcon('Crown');
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar px-5 pt-4 pb-32 screen-enter-items">
+    <div className="h-full overflow-y-auto no-scrollbar px-5 pt-4 pb-6 screen-enter-items">
       <div className="flex items-center gap-3 mb-8">
         <GlassBackButton onClick={onBack} />
         <h1 className="text-title1 text-primary font-bold">Plans</h1>

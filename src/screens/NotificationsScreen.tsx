@@ -1,10 +1,32 @@
 import { useState, useMemo } from 'react';
+import type { Variants } from 'framer-motion';
 import { useAppData } from '@/lib/appData';
 import { GlassCard, GlassBackButton, GlassEmpty } from '@/components/Glass';
 import { Toast } from '@/components/Overlays';
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import { getIcon, type IconName } from '@/lib/icons';
 import type { Notification, Group } from '@/types/database';
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const raiseAnimation: Variants = {
+  hidden: { opacity: 0, y: 24, scale: 0.96 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      delay: Math.min(i, 8) * 0.05,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
+  exit: {
+    opacity: 0,
+    y: -14,
+    scale: 0.95,
+    transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 interface NotificationsScreenProps {
   onBack?: () => void;
@@ -262,7 +284,7 @@ export function NotificationsScreen({
   };
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-28">
+    <div className="h-full overflow-y-auto no-scrollbar screen-enter-items pb-6">
       {/* Sticky Liquid Glass Navigation Header */}
       <div className="sticky top-0 z-30 glass glass-specular px-5 pt-3 pb-3 border-b border-white/20 dark:border-white/10">
         <div className="flex items-center justify-between">
@@ -341,7 +363,7 @@ export function NotificationsScreen({
         </div>
       </div>
 
-      <div className="px-5 mt-4 space-y-4">
+      <div key={activeTab} className="px-5 mt-4 space-y-4 animate-rise">
         {activeTab === 'feed' ? (
           <>
             {/* Filter Pills Bar */}
@@ -413,17 +435,19 @@ export function NotificationsScreen({
 
             {/* Notification List */}
             {filteredList.length === 0 ? (
-              <GlassEmpty
-                icon="Bell"
-                title={filter === 'unread' ? 'Zero unread notifications' : 'No notifications'}
-                subtitle={
-                  filter === 'unread'
-                    ? "You're completely caught up on all activity!"
-                    : 'Activity and messages from your Ekips will appear right here.'
-                }
-              />
+              <div key={`empty-${filter}`} className="animate-rise">
+                <GlassEmpty
+                  icon="Bell"
+                  title={filter === 'unread' ? 'Zero unread notifications' : 'No notifications'}
+                  subtitle={
+                    filter === 'unread'
+                      ? "You're completely caught up on all activity!"
+                      : 'Activity and messages from your Ekips will appear right here.'
+                  }
+                />
+              </div>
             ) : (
-              <div className="space-y-2.5">
+              <div key={`list-${filter}`} className="space-y-2.5 animate-rise">
                 {filteredList.map((n, idx) => {
                   const cfg = TYPE_CONFIG[n.type] ?? TYPE_CONFIG.admin;
                   const Icon = getIcon(cfg.icon);
@@ -432,7 +456,7 @@ export function NotificationsScreen({
                     <div
                       key={n.id}
                       onClick={() => handleAction(n)}
-                      className={`relative rounded-3xl p-3.5 glass transition-all cursor-pointer animate-rise-d${Math.min(
+                      className={`relative rounded-3xl p-3.5 glass transition-all cursor-pointer spring-press animate-rise-d${Math.min(
                         idx,
                         5
                       )} ${
@@ -537,7 +561,7 @@ export function NotificationsScreen({
           </>
         ) : (
           /* Preferences / Delivery Channels View */
-          <div className="space-y-5">
+          <div key="settings-view" className="space-y-5 animate-rise">
             {/* Master Push Toggle Hero Card */}
             <div className="relative rounded-3xl overflow-hidden p-5 glass glass-specular border border-indigo-500/30 shadow-lg">
               <div className="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
