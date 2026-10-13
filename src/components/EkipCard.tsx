@@ -15,11 +15,10 @@ const typeLabels: Record<string, string> = {
 };
 
 export function EkipCard({ group, onClick, variant = 'default' }: { group: Group; onClick?: () => void; variant?: 'default' | 'compact' | 'featured' }) {
-  const { me, requests } = useAppData();
+  const { requests } = useAppData();
   const myRequest = requests.find((r) => r.group_id === group.id && r.user_id === 'me');
   const isOwner = group.owner_id === 'me';
 
-  const spotsLeft = group.max_members ? group.max_members - group.member_count : null;
   const eventDate = new Date(group.event_date);
   const dateStr = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });

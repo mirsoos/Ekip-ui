@@ -1,4 +1,4 @@
-import { type ReactNode, type CSSProperties } from 'react';
+import { useState, useEffect, type ReactNode, type CSSProperties } from 'react';
 import { getIcon, type IconName } from '@/lib/icons';
 
 // ============================================
@@ -147,7 +147,7 @@ interface GlassInputProps {
 }
 
 export function GlassInput({
-  value, onChange, placeholder, type = 'text', icon, label, className = '', multiline, rows = 3, secure,
+  value, onChange, placeholder, type = 'text', icon, className = '', multiline, rows = 3, secure,
 }: GlassInputProps) {
   const inputCls = 'w-full bg-transparent outline-none text-body text-primary placeholder:text-tertiary';
   const wrapper = `glass-thin glass-specular rounded-3xl px-4 py-3.5 flex items-center gap-3 ${className}`;
@@ -217,6 +217,33 @@ export function GlassAvatar({ src, name, size = 44, className = '', ring = true,
 }
 
 // ============================================
+// GLASS BACK BUTTON — Telegram-style liquid circular back button
+// ============================================
+export function GlassBackButton({ onClick, className = '' }: { onClick: () => void; className?: string }) {
+  const Back = getIcon('ArrowLeft');
+  const handleClick = () => {
+    if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(8);
+      } catch {
+        // ignore
+      }
+    }
+    onClick();
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      aria-label="Go back"
+      className={`w-9 h-9 rounded-full glass-thick glass-specular glass-edge flex items-center justify-center spring-press text-primary shrink-0 cursor-pointer shadow-sm ${className}`}
+    >
+      <Back size={18} strokeWidth={2.4} />
+    </button>
+  );
+}
+
+// ============================================
 // GLASS SEGMENTED CONTROL — iOS segmented
 // ============================================
 interface GlassSegmentedProps {
@@ -228,12 +255,29 @@ interface GlassSegmentedProps {
 
 export function GlassSegmented({ options, value, onChange, className = '' }: GlassSegmentedProps) {
   const activeIndex = Math.max(0, options.findIndex((option) => option.value === value));
+  const count = options.length;
+
+  const handleSelect = (v: string) => {
+    if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(6);
+      } catch {
+        // ignore
+      }
+    }
+    onChange(v);
+  };
+
   return (
-    <div className={`relative glass-thin glass-specular rounded-2xl p-1 flex gap-1 ${className}`}>
+    <div className={`relative glass-thin glass-specular rounded-2xl p-1 grid ${className}`} style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
       <div
         aria-hidden="true"
-        className="absolute inset-y-1 left-1 rounded-xl glass glass-specular pointer-events-none transition-transform duration-500 ease-out"
-        style={{ width: `calc((100% - ${(options.length - 1) * 0.25}rem - 0.5rem) / ${options.length})`, transform: `translateX(${activeIndex * 100}%)` }}
+        className="absolute inset-y-1 rounded-xl glass-lens pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{
+          width: `calc((100% - 0.5rem) / ${count})`,
+          left: '0.25rem',
+          transform: `translateX(${activeIndex * 100}%)`,
+        }}
       />
       {options.map((opt) => {
         const active = opt.value === value;
@@ -241,10 +285,12 @@ export function GlassSegmented({ options, value, onChange, className = '' }: Gla
         return (
           <button
             key={opt.value}
-            onClick={() => onChange(opt.value)}
-            className={`relative z-10 flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl text-foot font-semibold transition-colors duration-300 haptic ${active ? 'text-primary' : 'text-tertiary'}`}
+            onClick={() => handleSelect(opt.value)}
+            className={`relative z-10 flex items-center justify-center gap-1.5 py-2 rounded-xl text-foot font-semibold transition-all duration-200 spring-press cursor-pointer ${
+              active ? 'text-primary font-bold' : 'text-tertiary hover:text-secondary'
+            }`}
           >
-            {Icon && <Icon size={15} strokeWidth={2.2} />}
+            {Icon && <Icon size={15} strokeWidth={active ? 2.5 : 2} />}
             {opt.label}
           </button>
         );
@@ -261,10 +307,30 @@ interface GlassProgressProps {
   max: number;
   className?: string;
   color?: 'accent' | 'success' | 'warning';
+  animateFromZero?: boolean;
 }
 
-export function GlassProgress({ value, max, className = '', color = 'accent' }: GlassProgressProps) {
-  const pct = Math.min(100, (value / max) * 100);
+export function GlassProgress({
+  value,
+  max,
+  className = '',
+  color = 'accent',
+  animateFromZero = false,
+}: GlassProgressProps) {
+  const [currentVal, setCurrentVal] = useState(animateFromZero ? 0 : value);
+
+  useEffect(() => {
+    if (animateFromZero) {
+      const t = setTimeout(() => {
+        setCurrentVal(value);
+      }, 50);
+      return () => clearTimeout(t);
+    } else {
+      setCurrentVal(value);
+    }
+  }, [value, animateFromZero]);
+
+  const pct = Math.min(100, Math.max(0, (currentVal / max) * 100));
   const colors = {
     accent: 'linear-gradient(90deg, rgb(244 114 182), rgb(59 130 246))',
     success: 'linear-gradient(90deg, rgb(34 197 94), rgb(16 185 129))',
@@ -273,7 +339,7 @@ export function GlassProgress({ value, max, className = '', color = 'accent' }: 
   return (
     <div className={`glass-thin rounded-full h-2.5 overflow-hidden ${className}`}>
       <div
-        className="h-full rounded-full transition-all duration-700"
+        className="h-full rounded-full transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
         style={{ width: `${pct}%`, background: colors[color], boxShadow: '0 0 12px rgb(244 114 182 / 0.5)' }}
       />
     </div>

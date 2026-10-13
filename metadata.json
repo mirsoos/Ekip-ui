@@ -1,0 +1,8 @@
+{
+  "name": "Ekip — Discover. Create. Join.",
+  "description": "Discover, create, and join activity groups and communities near you.",
+  "prompt": "Ekip activity and community discovery mobile web app",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

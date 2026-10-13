@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { GlassCard, GlassButton } from '@/components/Glass';
-import { getIcon, type IconName } from '@/lib/icons';
+import { GlassBackButton } from '@/components/Glass';
+import { AIChatBubble } from '@/components/ai/AIChatBubble';
+import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
+import { getIcon } from '@/lib/icons';
 
 interface AIMessage {
   id: string;
@@ -37,7 +39,7 @@ const aiResponses: Record<string, { body: string; chips?: string[] }> = {
     body: "For a startup co-founder matching Ekip, I recommend looking for complementary skills:\n\n• Technical: A full-stack or backend engineer who can build the product\n• Design: A product designer who understands user experience\n• Growth: Someone with marketing or sales experience\n• Domain expertise: Someone who knows your target industry\n\nBased on your profile as a Product Designer, you'd pair well with a technical co-founder. I can filter existing Ekips or suggest compatible users with engineering backgrounds.",
     chips: ['Find compatible users', 'Create a co-founder Ekip', 'See matching Ekips'],
   },
-  'default': {
+  default: {
     body: "I'm your Ekip AI assistant! I can help you:\n\n• Create better Ekip listings with smart suggestions\n• Discover activities that match your interests\n• Find compatible users to invite\n• Recommend locations for your meetups\n• Suggest skills or requirements for your group\n\nWhat would you like help with today?",
     chips: ['Create an Ekip', 'Find activities', 'Recommend users'],
   },
@@ -50,7 +52,7 @@ function getAIResponse(input: string): { body: string; chips?: string[] } {
   if (lower.includes('location') && lower.includes('dinner')) return aiResponses['suggest a good location for a group dinner'];
   if (lower.includes('skill') && lower.includes('co-founder')) return aiResponses['what skills should i look for in a startup co-founder ekip?'];
   if (lower.includes('recommend')) return aiResponses['recommend activities near me'];
-  return aiResponses['default'];
+  return aiResponses.default;
 }
 
 export function AIAssistant({ onBack }: AIAssistantProps) {
@@ -66,7 +68,6 @@ export function AIAssistant({ onBack }: AIAssistantProps) {
   const [typing, setTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const Back = getIcon('ArrowLeft');
   const Send = getIcon('Send');
   const Sparkles = getIcon('Sparkles');
 
@@ -92,12 +93,15 @@ export function AIAssistant({ onBack }: AIAssistantProps) {
     <div className="relative h-full flex flex-col">
       {/* Header */}
       <div className="absolute inset-x-0 top-0 z-20 glass glass-specular px-5 pt-3 pb-3 animate-rise">
-        <div className="p-2 flex items-center gap-3">
-          <button onClick={onBack} className="w-9 h-9 rounded-full glass glass-specular flex items-center justify-center haptic shrink-0">
-            <Back size={18} className="text-primary" strokeWidth={2.2} />
-          </button>
-          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, rgb(244 114 182 / 0.3), rgb(59 130 246 / 0.3))' }}>
-            <Sparkles size={20} className="text-pink-500" strokeWidth={2} />
+        <div className="p-1 flex items-center gap-3">
+          <GlassBackButton onClick={onBack} />
+          <div
+            className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgb(244 114 182 / 0.35), rgb(59 130 246 / 0.35))',
+            }}
+          >
+            <Sparkles size={20} className="text-pink-500" strokeWidth={2.2} />
           </div>
           <div className="flex-1">
             <p className="text-sub text-primary font-bold">Ekip AI</p>
@@ -107,66 +111,33 @@ export function AIAssistant({ onBack }: AIAssistantProps) {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar px-4 pt-24 pb-2 space-y-4 animate-rise-d1">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto no-scrollbar px-4 pt-24 pb-2 space-y-4 animate-rise-d1"
+      >
         {messages.map((m) => (
-          <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-rise`}>
-            <div className={`max-w-[82%] ${m.role === 'user' ? '' : 'w-full'}`}>
-              {m.role === 'ai' && (
-                <div className="flex items-center gap-2 mb-1.5">
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgb(244 114 182 / 0.3), rgb(59 130 246 / 0.3))' }}>
-                    <Sparkles size={14} className="text-pink-500" strokeWidth={2.4} />
-                  </div>
-                  <span className="text-caption text-tertiary font-bold">Ekip AI</span>
-                </div>
-              )}
-              <div
-                className={`px-4 py-3 ${m.role === 'user' ? 'rounded-3xl rounded-br-lg text-white' : 'rounded-3xl rounded-bl-lg glass glass-specular text-primary'}`}
-                style={m.role === 'user' ? { background: 'linear-gradient(135deg, rgb(244 114 182), rgb(59 130 246))' } : undefined}
-              >
-                <p className="text-body leading-relaxed whitespace-pre-line">{m.body}</p>
-              </div>
-              {m.chips && (
-                <div className="flex flex-wrap gap-2 mt-2.5">
-                  {m.chips.map((chip) => (
-                    <button
-                      key={chip}
-                      onClick={() => send(chip)}
-                      className="px-3 py-1.5 rounded-full text-foot font-semibold glass-thin glass-specular text-pink-500 haptic"
-                    >
-                      {chip}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <AIChatBubble
+            key={m.id}
+            role={m.role}
+            body={m.body}
+            chips={m.chips}
+            onSelectChip={send}
+          />
         ))}
 
-        {typing && (
-          <div className="flex justify-start animate-fade">
-            <div className="glass glass-specular rounded-3xl rounded-bl-lg px-4 py-3 flex items-center gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 rounded-full bg-tertiary"
-                  style={{ animation: `bounce 1.4s ease-in-out ${i * 0.2}s infinite` }}
-                />
-              ))}
-              <style>{`@keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }`}</style>
-            </div>
-          </div>
-        )}
+        {typing && <AITypingIndicator />}
       </div>
 
-      {/* Suggestions (when few messages) */}
+      {/* Prompt chips when thread is young */}
       {messages.length <= 2 && !typing && (
         <div className="px-4 pb-2 animate-rise-d2">
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {suggestions.map((s) => (
               <button
                 key={s}
+                type="button"
                 onClick={() => send(s)}
-                className="shrink-0 px-3 py-2 rounded-2xl text-foot font-semibold glass-thin glass-specular text-secondary haptic"
+                className="shrink-0 px-3 py-2 rounded-2xl text-foot font-semibold glass-thin glass-specular text-secondary spring-press cursor-pointer"
               >
                 {s}
               </button>
@@ -177,18 +148,20 @@ export function AIAssistant({ onBack }: AIAssistantProps) {
 
       {/* Input */}
       <div className="px-4 pb-5 pt-2 animate-rise-d3">
-        <div className="glass-thick glass-specular glass-edge rounded-3xl p-2 flex items-center gap-2">
+        <div className="glass-thick glass-specular glass-edge rounded-3xl p-2 flex items-center gap-2 shadow-lg">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && send(input)}
             placeholder="Ask Ekip AI anything..."
-            className="flex-1 bg-transparent outline-none text-body text-primary placeholder:text-tertiary"
+            className="flex-1 bg-transparent outline-none text-body text-primary placeholder:text-tertiary px-2"
           />
           <button
+            type="button"
             onClick={() => send(input)}
             disabled={!input.trim()}
-            className="w-9 h-9 rounded-full flex items-center justify-center haptic shrink-0 transition-all disabled:opacity-30"
+            aria-label="Send query"
+            className="w-10 h-10 rounded-full flex items-center justify-center spring-press cursor-pointer shrink-0 transition-all shadow-md disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(135deg, rgb(244 114 182), rgb(59 130 246))' }}
           >
             <Send size={16} className="text-white" strokeWidth={2.4} />

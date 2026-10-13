@@ -109,7 +109,6 @@ export function GlassDialog({ open, onClose, title, body, children, actions }: G
 }
 
 // Toast — transient message
-let toastId = 0;
 export function Toast({ message, icon = 'CheckCircle2', visible }: { message: string; icon?: IconName; visible: boolean }) {
   if (!visible) return null;
   const Icon = getIcon(icon);

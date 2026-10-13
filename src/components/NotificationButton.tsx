@@ -10,11 +10,26 @@ export function NotificationButton({ unreadCount, onClick }: NotificationButtonP
   const Bell = getIcon('Bell');
   return (
     <div className="relative shrink-0">
-      <button onClick={onClick} className="w-10 h-10 rounded-full glass glass-specular glass-edge flex items-center justify-center haptic" aria-label="Open notifications">
-        <Bell size={18} className="text-primary" strokeWidth={2.2} />
+      <button
+        onClick={() => {
+          if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
+            try {
+              navigator.vibrate(8);
+            } catch {
+              // ignore vibration error
+            }
+          }
+          onClick();
+        }}
+        className="w-10 h-10 rounded-full glass-thick glass-specular glass-edge flex items-center justify-center spring-press cursor-pointer shadow-sm"
+        aria-label="Open notifications"
+      >
+        <Bell size={18} className="text-primary" strokeWidth={2.4} />
       </button>
       {unreadCount > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-[rgb(var(--bg-canvas))] shadow-lg pointer-events-none" style={{ background: 'linear-gradient(135deg, rgb(239 68 68), rgb(220 38 38))' }}>
+        <span
+          className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black text-white flex items-center justify-center telegram-badge animate-pop shadow-md pointer-events-none ring-2 ring-[rgb(var(--glass-tint))]"
+        >
           {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}

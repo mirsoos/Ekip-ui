@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ThemeProvider } from '@/lib/theme';
 import { AppDataProvider } from '@/lib/appData';
 import { AuroraBackground, PhoneFrame } from '@/components/PhoneFrame';
@@ -57,6 +57,13 @@ function EkipApp() {
   };
 
   const switchTab = (t: TabKey) => {
+    // If clicking 'create' while already on create tab/screen, toggle back to discover
+    if (t === 'create' && (tab === 'create' || screen.name === 'create')) {
+      setTab('discover');
+      setHistory([]);
+      setScreen({ name: 'discover' });
+      return;
+    }
     setTab(t);
     setHistory([]);
     if (t === 'discover') setScreen({ name: 'discover' });
@@ -110,7 +117,14 @@ function EkipApp() {
         )}
         {screen.name === 'create' && (
           <CreateScreen
-            onBack={pop}
+            onBack={() => {
+              if (history.length > 0) pop();
+              else {
+                setTab('discover');
+                setHistory([]);
+                setScreen({ name: 'discover' });
+              }
+            }}
             onCreated={(g) => {
               setHistory([]);
               setScreen({ name: 'group', group: g });
