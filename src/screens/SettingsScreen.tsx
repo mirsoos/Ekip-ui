@@ -5,24 +5,25 @@ import { GlassSheet } from '@/components/Overlays';
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import { SettingsDivider } from '@/components/settings/SettingsDivider';
 import { PremiumFeatureRow } from '@/components/settings/PremiumFeatureRow';
-import { getIcon } from '@/lib/icons';
 import { useTheme } from '@/lib/theme';
 
 interface SettingsScreenProps {
   onBack: () => void;
   onOpenPlans: () => void;
+  onOpenPersonalInfo: () => void;
+  onOpenVerification?: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenSecurity?: () => void;
+  onOpenNotifications?: () => void;
+  onOpenLocation?: () => void;
   onSignOut: () => void;
 }
 
-export function SettingsScreen({ onBack, onOpenPlans, onSignOut }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpenVerification, onOpenPrivacy, onOpenSecurity, onOpenNotifications, onOpenLocation, onSignOut }: SettingsScreenProps) {
   const { me } = useAppData();
   const { theme, toggle } = useTheme();
   const [showPremium, setShowPremium] = useState(false);
 
-  const ChevronRight = getIcon('ChevronRight');
-  const Moon = getIcon('Moon');
-  const Sun = getIcon('Sun');
-  const Crown = getIcon('Crown');
 
   return (
     <div className="h-full overflow-y-auto no-scrollbar screen-enter-items">
@@ -34,8 +35,11 @@ export function SettingsScreen({ onBack, onOpenPlans, onSignOut }: SettingsScree
       </div>
 
       <div className="px-5 mt-4 pb-8 space-y-5">
-        {/* Profile card */}
-        <GlassCard className="rounded-3xl p-4 flex items-center gap-3">
+        {/* Profile card — navigates to Personal Information */}
+        <GlassCard
+          onClick={onOpenPersonalInfo}
+          className="rounded-3xl p-4 flex items-center gap-3 spring-press cursor-pointer hover:border-white/30 transition-all"
+        >
           <GlassAvatar src={me.avatar_url} name={`${me.first_name} ${me.last_name}`} size={56} />
           <div className="flex-1 min-w-0">
             <p className="text-body text-primary font-bold truncate">
@@ -54,30 +58,49 @@ export function SettingsScreen({ onBack, onOpenPlans, onSignOut }: SettingsScree
               iconBg="rgb(59 130 246 / 0.2)"
               title="Personal information"
               subtitle="Name, username, email"
+              onClick={onOpenPersonalInfo}
               showChevron
             />
             <SettingsDivider />
             <GlassListItem
               icon="ShieldCheck"
-              iconBg="rgb(34 197 94 / 0.2)"
+              iconBg="rgb(244 114 182 / 0.22)"
               title="Verification"
-              subtitle="ID and identity verification"
+              subtitle="ID and biometric identity verification"
+              onClick={onOpenVerification}
+              right={
+                <span className="text-[11px] font-bold text-pink-500 bg-pink-500/10 px-2 py-0.5 rounded-full border border-pink-500/20 mr-1">
+                  {me.is_verified ? 'Verified' : 'Pending'}
+                </span>
+              }
               showChevron
             />
             <SettingsDivider />
             <GlassListItem
               icon="Lock"
-              iconBg="rgb(168 85 247 / 0.2)"
+              iconBg="rgb(244 114 182 / 0.22)"
               title="Privacy"
               subtitle="Who can find and contact you"
+              onClick={onOpenPrivacy}
+              right={
+                <span className="text-[11px] font-bold text-pink-500 bg-pink-500/10 px-2 py-0.5 rounded-full border border-pink-500/20 mr-1">
+                  Protected
+                </span>
+              }
               showChevron
             />
             <SettingsDivider />
             <GlassListItem
               icon="Fingerprint"
-              iconBg="rgb(244 114 182 / 0.2)"
+              iconBg="rgb(16 185 129 / 0.2)"
               title="Security"
               subtitle="2FA, password, devices"
+              onClick={onOpenSecurity}
+              right={
+                <span className="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 mr-1">
+                  Fortified
+                </span>
+              }
               showChevron
             />
           </GlassCard>
@@ -105,9 +128,15 @@ export function SettingsScreen({ onBack, onOpenPlans, onSignOut }: SettingsScree
             <SettingsDivider />
             <GlassListItem
               icon="Bell"
-              iconBg="rgb(244 114 182 / 0.2)"
+              iconBg="rgb(99 102 241 / 0.2)"
               title="Notifications"
               subtitle="Push, email, in-app"
+              onClick={onOpenNotifications}
+              right={
+                <span className="text-[11px] font-bold text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 mr-1">
+                  Active
+                </span>
+              }
               showChevron
             />
             <SettingsDivider />
@@ -116,6 +145,12 @@ export function SettingsScreen({ onBack, onOpenPlans, onSignOut }: SettingsScree
               iconBg="rgb(16 185 129 / 0.2)"
               title="Location"
               subtitle="City and discovery radius"
+              onClick={onOpenLocation}
+              right={
+                <span className="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 mr-1 truncate max-w-[100px]">
+                  {me.city || 'San Francisco'}
+                </span>
+              }
               showChevron
             />
             <SettingsDivider />

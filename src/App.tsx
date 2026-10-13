@@ -11,11 +11,16 @@ import { CreateScreen } from '@/screens/CreateScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
 import { ActivityScreen } from '@/screens/ActivityScreen';
 import { ChatListScreen, ConversationScreen } from '@/screens/ChatScreens';
+import { NotificationSheet } from '@/components/notifications/NotificationSheet';
 import { NotificationsScreen } from '@/screens/NotificationsScreen';
 import { AIAssistant } from '@/screens/AIAssistant';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { PlansScreen } from '@/screens/PlansScreen';
-import { GlassSheet } from '@/components/Overlays';
+import { PersonalInfoScreen } from '@/screens/PersonalInfoScreen';
+import { VerificationScreen } from '@/screens/VerificationScreen';
+import { PrivacyScreen } from '@/screens/PrivacyScreen';
+import { SecurityScreen } from '@/screens/SecurityScreen';
+import { LocationScreen } from '@/screens/LocationScreen';
 import { SwipeNavigationContainer } from '@/components/common/SwipeNavigationContainer';
 import type { Group } from '@/types/database';
 
@@ -32,7 +37,12 @@ type Screen =
   | { name: 'notifications' }
   | { name: 'ai' }
   | { name: 'settings' }
-  | { name: 'plans' };
+  | { name: 'plans' }
+  | { name: 'personalInfo' }
+  | { name: 'verification' }
+  | { name: 'privacy' }
+  | { name: 'security' }
+  | { name: 'location' };
 
 const mainTabs: TabKey[] = ['discover', 'activity', 'chat', 'profile'];
 
@@ -42,7 +52,7 @@ function EkipApp() {
   const [tab, setTab] = useState<TabKey>('discover');
   const [screen, setScreen] = useState<Screen>({ name: 'discover' });
   const [history, setHistory] = useState<Screen[]>([]);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [showNotificationSheet, setShowNotificationSheet] = useState(false);
 
   const push = (s: Screen) => {
     setHistory((prev) => [...prev, screen]);
@@ -135,7 +145,7 @@ function EkipApp() {
               onOpenProfile={(uid) => push({ name: 'profile', userId: uid })}
               onOpenOwnProfile={() => { setTab('profile'); setHistory([]); setScreen({ name: 'profile', userId: 'me' }); }}
               onOpenAI={() => push({ name: 'ai' })}
-              onOpenNotifications={() => setShowNotifications(true)}
+              onOpenNotifications={() => setShowNotificationSheet(true)}
             />
           )}
           {screen.name === 'group' && (
@@ -173,37 +183,71 @@ function EkipApp() {
               onBack={pop}
               onOpenGroup={(g) => push({ name: 'group', group: g })}
               onOpenSettings={() => push({ name: 'settings' })}
+              onOpenPersonalInfo={() => push({ name: 'personalInfo' })}
+              onOpenVerification={() => push({ name: 'verification' })}
             />
           )}
           {screen.name === 'activity' && (
             <ActivityScreen
               onOpenGroup={(g) => push({ name: 'group', group: g })}
               onOpenProfile={(uid) => push({ name: 'profile', userId: uid })}
-              onOpenNotifications={() => setShowNotifications(true)}
+              onOpenNotifications={() => setShowNotificationSheet(true)}
             />
           )}
           {screen.name === 'chatList' && (
             <ChatListScreen
               onOpenConversation={(id) => push({ name: 'conversation', conversationId: id })}
-              onOpenNotifications={() => setShowNotifications(true)}
+              onOpenNotifications={() => setShowNotificationSheet(true)}
             />
           )}
           {screen.name === 'conversation' && (
             <ConversationScreen conversationId={screen.conversationId} onBack={pop} />
           )}
+          {screen.name === 'notifications' && (
+            <NotificationsScreen
+              onBack={pop}
+              onOpenConversation={(id) => push({ name: 'conversation', conversationId: id })}
+            />
+          )}
           {screen.name === 'ai' && <AIAssistant onBack={pop} />}
           {screen.name === 'settings' && (
-            <SettingsScreen onBack={pop} onOpenPlans={() => push({ name: 'plans' })} onSignOut={() => { setAuthed(false); setOnboarded(false); setTab('discover'); setScreen({ name: 'discover' }); }} />
+            <SettingsScreen
+              onBack={pop}
+              onOpenPlans={() => push({ name: 'plans' })}
+              onOpenPersonalInfo={() => push({ name: 'personalInfo' })}
+              onOpenVerification={() => push({ name: 'verification' })}
+              onOpenPrivacy={() => push({ name: 'privacy' })}
+              onOpenSecurity={() => push({ name: 'security' })}
+              onOpenNotifications={() => push({ name: 'notifications' })}
+              onOpenLocation={() => push({ name: 'location' })}
+              onSignOut={() => { setAuthed(false); setOnboarded(false); setTab('discover'); setScreen({ name: 'discover' }); }}
+            />
           )}
           {screen.name === 'plans' && <PlansScreen onBack={pop} />}
+          {screen.name === 'personalInfo' && (
+            <PersonalInfoScreen
+              onBack={pop}
+              onOpenVerification={() => push({ name: 'verification' })}
+            />
+          )}
+          {screen.name === 'verification' && <VerificationScreen onBack={pop} />}
+          {screen.name === 'privacy' && <PrivacyScreen onBack={pop} />}
+          {screen.name === 'security' && <SecurityScreen onBack={pop} />}
+          {screen.name === 'location' && <LocationScreen onBack={pop} />}
         </div>
       </SwipeNavigationContainer>
 
-      <GlassSheet open={showNotifications} onClose={() => setShowNotifications(false)} title="Notifications" contentClassName="overflow-hidden flex flex-col">
-        <NotificationsScreen open={showNotifications} />
-      </GlassSheet>
-
       {showBottomNav && <BottomNav active={tab} onChange={switchTab} />}
+
+      <NotificationSheet
+        open={showNotificationSheet}
+        onClose={() => setShowNotificationSheet(false)}
+        onOpenConversation={(id) => {
+          setShowNotificationSheet(false);
+          setTab('chat');
+          push({ name: 'conversation', conversationId: id });
+        }}
+      />
 
     </div>
   );

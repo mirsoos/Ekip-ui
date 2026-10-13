@@ -1,7 +1,7 @@
 {
-  "name": "Ekip — Discover. Create. Join.",
-  "description": "Discover, create, and join activity groups and communities near you.",
-  "prompt": "Ekip activity and community discovery mobile web app",
+  "name": "EKIP — Authenticator, Passwords & Devices",
+  "description": "Secure 2FA Authenticator, Encrypted Password Manager, Trusted Devices, and Privacy & Security Command Center.",
+  "prompt": "Secure 2FA Authenticator, password manager, trusted devices and security app",
   "capabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

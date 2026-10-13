@@ -19,6 +19,8 @@ interface ProfileScreenProps {
   onBack?: () => void;
   onOpenGroup: (group: Group) => void;
   onOpenSettings: () => void;
+  onOpenPersonalInfo?: () => void;
+  onOpenVerification?: () => void;
 }
 
 export function ProfileScreen({
@@ -27,6 +29,8 @@ export function ProfileScreen({
   onBack,
   onOpenGroup,
   onOpenSettings,
+  onOpenPersonalInfo,
+  onOpenVerification,
 }: ProfileScreenProps) {
   const { me, profiles, groups, members, badges, missions, friends, addFriend, updateFriend, addNotification } = useAppData();
   const { theme, toggle } = useTheme();
@@ -61,6 +65,7 @@ export function ProfileScreen({
   const Sun = getIcon('Sun');
   const Moon = getIcon('Moon');
   const Settings = getIcon('Settings');
+  const Edit = getIcon('Edit');
 
   const handleAddFriend = () => {
     if (existingFriend) {
@@ -103,6 +108,17 @@ export function ProfileScreen({
 
         {isOwnProfile && (
           <div className="absolute top-4 right-4 flex gap-2 z-10">
+            {onOpenPersonalInfo && (
+              <button
+                type="button"
+                onClick={onOpenPersonalInfo}
+                aria-label="Edit Personal Info"
+                className="px-3 h-10 rounded-full glass-thick glass-specular glass-edge flex items-center gap-1.5 spring-press cursor-pointer shadow-sm text-primary text-foot font-semibold"
+              >
+                <Edit size={15} strokeWidth={2.4} />
+                <span>Edit</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={toggle}
@@ -130,6 +146,7 @@ export function ProfileScreen({
         isFriend={Boolean(existingFriend?.status === 'accepted')}
         onAddFriend={handleAddFriend}
         onOpenActions={() => setShowActions(true)}
+        onOpenVerification={onOpenVerification}
       />
 
       <div className="px-5 mt-4 space-y-4">

@@ -32,20 +32,24 @@ interface AppData {
   addFriend: (friendId: string) => void;
   updateFriend: (id: string, status: Friendship['status']) => void;
   addNotification: (n: Omit<Notification, 'id' | 'user_id' | 'created_at' | 'is_read'>) => void;
+  updateMe: (updates: Partial<Profile>) => void;
+  language: 'en' | 'fa';
+  setLanguage: (lang: 'en' | 'fa') => void;
 }
 
 const AppDataContext = createContext<AppData | null>(null);
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
+  const [me, setMe] = useState<Profile>(demoProfiles[0]);
   const [groups, setGroups] = useState<Group[]>(demoGroups);
   const [requests, setRequests] = useState<GroupRequest[]>(demoRequests);
   const [conversations, setConversations] = useState<Conversation[]>(demoConversations);
   const [messages, setMessages] = useState<Record<string, Message[]>>(demoMessages);
   const [notifications, setNotifications] = useState<Notification[]>(demoNotifications);
   const [friends, setFriends] = useState<Friendship[]>(demoFriends);
+  const [language, setLanguage] = useState<'en' | 'fa'>('en');
 
-  const me = demoProfiles[0];
-  const profiles = demoProfiles;
+  const profiles = [me, ...demoProfiles.slice(1)];
   const members = demoMembers;
   const badges = demoBadges;
   const missions = demoMissions;
@@ -130,6 +134,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const updateMe = useCallback((updates: Partial<Profile>) => {
+    setMe((prev) => ({ ...prev, ...updates }));
+  }, []);
+
   return (
     <AppDataContext.Provider
       value={{
@@ -137,6 +145,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         notifications, badges, missions, friends,
         addGroup, addRequest, updateRequest, addMessage, markConversationRead,
         markNotificationRead, markAllNotificationsRead, addFriend, updateFriend, addNotification,
+        updateMe, language, setLanguage,
       }}
     >
       {children}

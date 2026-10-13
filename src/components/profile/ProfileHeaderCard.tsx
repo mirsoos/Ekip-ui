@@ -9,6 +9,7 @@ interface ProfileHeaderCardProps {
   isFriend: boolean;
   onAddFriend?: () => void;
   onOpenActions?: () => void;
+  onOpenVerification?: () => void;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export function ProfileHeaderCard({
   isFriend,
   onAddFriend,
   onOpenActions,
+  onOpenVerification,
   className = '',
 }: ProfileHeaderCardProps) {
   const MoreHorizontal = getIcon('MoreHorizontal');
@@ -57,7 +59,16 @@ export function ProfileHeaderCard({
           <h1 className="text-title1 text-primary font-bold">
             {profile.first_name} {profile.last_name}
           </h1>
-          {profile.is_verified && <GlassBadgeIcon icon="Verified" label="" color="blue" />}
+          {profile.is_verified && (
+            <button
+              type="button"
+              onClick={onOpenVerification}
+              className="inline-flex cursor-pointer spring-press"
+              aria-label="View verification credentials"
+            >
+              <GlassBadgeIcon icon="Verified" label="Verified" color="pink" />
+            </button>
+          )}
           {profile.is_premium && <GlassBadgeIcon icon="Crown" label="Premium" color="amber" />}
         </div>
         <p className="text-sub text-secondary">@{profile.username}</p>
