@@ -144,7 +144,7 @@ export function CreateScreen({ onBack, onCreated }: CreateScreenProps) {
       </div>
 
       {/* Form Content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar px-5 pt-3 pb-28 space-y-4">
+      <div className="flex-1 overflow-y-auto no-scrollbar px-5 pt-3 pb-48 space-y-4">
         {step === 0 && (
           <div className="space-y-4 animate-rise">
             <div>
@@ -305,16 +305,27 @@ export function CreateScreen({ onBack, onCreated }: CreateScreenProps) {
         )}
       </div>
 
-      {/* Footer Navigation */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 glass-thick z-30">
+      {/* Floating Action Capsule (Elevated & Shielded) */}
+      <div className="absolute bottom-[98px] right-5 z-30 glass-thick rounded-full p-1.5 flex items-center gap-2 shadow-2xl border border-white/20 dark:border-white/10 backdrop-blur-2xl">
+        {step > 0 && (
+          <GlassButton
+            size="sm"
+            variant="secondary"
+            onClick={handlePrev}
+            icon="ArrowLeft"
+            className="shadow-sm rounded-full px-3.5 py-2 text-foot font-semibold"
+          >
+            Back
+          </GlassButton>
+        )}
         <GlassButton
-          fullWidth
-          size="lg"
+          size="md"
           onClick={handleNext}
           disabled={!canProceed()}
           iconRight={step === totalSteps - 1 ? 'Check' : 'ArrowRight'}
+          className="shadow-md rounded-full text-foot font-bold px-5 py-2"
         >
-          {step === totalSteps - 1 ? 'Publish Ekip' : 'Next Step'}
+          {step === totalSteps - 1 ? 'Publish' : 'Next'}
         </GlassButton>
       </div>
 

@@ -22,10 +22,11 @@ interface SettingsScreenProps {
   onOpenSecurity?: () => void;
   onOpenNotifications?: () => void;
   onOpenLocation?: () => void;
+  onOpenChatTheme?: () => void;
   onSignOut: () => void;
 }
 
-export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpenVerification, onOpenPrivacy, onOpenSecurity, onOpenNotifications, onOpenLocation, onSignOut }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpenVerification, onOpenPrivacy, onOpenSecurity, onOpenNotifications, onOpenLocation, onOpenChatTheme, onSignOut }: SettingsScreenProps) {
   const { me } = useAppData();
   const { theme, toggle } = useTheme();
   const [showPremium, setShowPremium] = useState(false);
@@ -139,6 +140,20 @@ export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpen
               </div>
               <GlassToggle checked={theme === 'dark'} onChange={toggle} />
             </div>
+            <SettingsDivider />
+            <GlassListItem
+              icon="Palette"
+              iconBg="rgb(244 114 182 / 0.2)"
+              title="Chat Theme"
+              subtitle="Chat bubbles, wallpaper & accent colors"
+              onClick={onOpenChatTheme}
+              right={
+                <span className="text-[11px] font-bold text-pink-500 bg-pink-500/10 px-2 py-0.5 rounded-full border border-pink-500/20 mr-1">
+                  Custom
+                </span>
+              }
+              showChevron
+            />
             <SettingsDivider />
             <GlassListItem
               icon="Bell"

@@ -1,5 +1,6 @@
 import { GlassAvatar } from '@/components/Glass';
 import type { Message } from '@/types/database';
+import { useTheme, CHAT_THEMES } from '@/lib/theme';
 
 interface ChatMessageBubbleProps {
   message: Message;
@@ -8,6 +9,9 @@ interface ChatMessageBubbleProps {
 }
 
 export function ChatMessageBubble({ message, isMe, showAvatar = false }: ChatMessageBubbleProps) {
+  const { chatTheme } = useTheme();
+  const themeConfig = CHAT_THEMES[chatTheme] ?? CHAT_THEMES.default;
+
   const time = new Date(message.created_at).toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -30,17 +34,17 @@ export function ChatMessageBubble({ message, isMe, showAvatar = false }: ChatMes
       <div
         className={`max-w-[75%] px-4 py-2.5 ${
           isMe
-            ? 'rounded-3xl rounded-br-lg text-white'
-            : 'rounded-3xl rounded-bl-lg glass glass-specular text-primary'
+            ? `rounded-3xl rounded-br-lg ${themeConfig.myBubbleText}`
+            : `rounded-3xl rounded-bl-lg ${themeConfig.theirBubbleClass} ${themeConfig.theirBubbleText}`
         }`}
         style={
           isMe
-            ? { background: 'linear-gradient(135deg, rgb(244 114 182), rgb(59 130 246))' }
+            ? { background: themeConfig.myBubbleGradient }
             : undefined
         }
       >
         {!isMe && message.sender && (
-          <p className="text-[10px] text-pink-500 font-bold mb-0.5">
+          <p className="text-[10px] font-bold mb-0.5" style={{ color: themeConfig.accentHex }}>
             {message.sender.first_name} {message.sender.last_name}
           </p>
         )}

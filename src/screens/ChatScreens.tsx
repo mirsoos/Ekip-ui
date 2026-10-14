@@ -6,6 +6,7 @@ import { ChatListItem } from '@/components/chat/ChatListItem';
 import { ChatMessageBubble } from '@/components/chat/ChatMessageBubble';
 import { ChatHeader } from '@/components/chat/ChatHeader';
 import { ChatInputBar } from '@/components/chat/ChatInputBar';
+import { useTheme, CHAT_THEMES } from '@/lib/theme';
 
 interface ChatListScreenProps {
   onOpenConversation: (id: string) => void;
@@ -71,6 +72,8 @@ interface ConversationScreenProps {
 
 export function ConversationScreen({ conversationId, onBack }: ConversationScreenProps) {
   const { conversations, messages, addMessage } = useAppData();
+  const { chatTheme } = useTheme();
+  const themeConfig = CHAT_THEMES[chatTheme] ?? CHAT_THEMES.default;
   const [input, setInput] = useState('');
   const messagesRef = useRef<HTMLDivElement>(null);
 
@@ -116,12 +119,18 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
   };
 
   return (
-    <div className="h-full flex flex-col screen-enter-items">
+    <div className="h-full flex flex-col screen-enter-items relative overflow-hidden">
+      {/* Dynamic Theme Background Aura */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-500 opacity-60"
+        style={{ background: themeConfig.bgAura }}
+      />
+
       <ChatHeader conversation={conv} onBack={onBack} />
 
       <div
         ref={messagesRef}
-        className="flex-1 overflow-y-auto no-scrollbar px-4 pt-24 pb-2 space-y-3"
+        className="flex-1 overflow-y-auto no-scrollbar px-4 pt-24 pb-2 space-y-3 relative z-10"
       >
         {convMessages.map((m, i) => {
           const isMe = m.sender_id === 'me';

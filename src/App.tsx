@@ -21,6 +21,7 @@ import { VerificationScreen } from '@/screens/VerificationScreen';
 import { PrivacyScreen } from '@/screens/PrivacyScreen';
 import { SecurityScreen } from '@/screens/SecurityScreen';
 import { LocationScreen } from '@/screens/LocationScreen';
+import { ChatThemeScreen } from '@/screens/ChatThemeScreen';
 import { SwipeNavigationContainer } from '@/components/common/SwipeNavigationContainer';
 import type { Group } from '@/types/database';
 
@@ -42,7 +43,8 @@ type Screen =
   | { name: 'verification' }
   | { name: 'privacy' }
   | { name: 'security' }
-  | { name: 'location' };
+  | { name: 'location' }
+  | { name: 'chatTheme' };
 
 const mainTabs: TabKey[] = ['discover', 'activity', 'chat', 'profile'];
 
@@ -221,6 +223,7 @@ function EkipApp() {
               onOpenSecurity={() => push({ name: 'security' })}
               onOpenNotifications={() => push({ name: 'notifications' })}
               onOpenLocation={() => push({ name: 'location' })}
+              onOpenChatTheme={() => push({ name: 'chatTheme' })}
               onSignOut={() => { setAuthed(false); setOnboarded(false); setTab('discover'); setScreen({ name: 'discover' }); }}
             />
           )}
@@ -235,6 +238,7 @@ function EkipApp() {
           {screen.name === 'privacy' && <PrivacyScreen onBack={pop} />}
           {screen.name === 'security' && <SecurityScreen onBack={pop} />}
           {screen.name === 'location' && <LocationScreen onBack={pop} />}
+          {screen.name === 'chatTheme' && <ChatThemeScreen onBack={pop} />}
         </div>
       </SwipeNavigationContainer>
 
