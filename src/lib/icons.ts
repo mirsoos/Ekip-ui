@@ -11,7 +11,7 @@ import {
   Palette, Hash, Globe, Verified, BadgeCheck, ShieldCheck, Play, Pause,
   SkipForward, Volume2, Layers, MapPinned, Route, Dot, Circle, CheckCircle2,
   AlertCircle, XCircle, PlusCircle, MinusCircle, ArrowUpRight, RefreshCw,
-  Power, Fingerprint, Brush, Rocket, Activity, BarChart3, LineChart,
+  Power, Fingerprint, Brush, Rocket, Activity, BarChart3, LineChart, Brain,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -28,7 +28,7 @@ export const Icons = {
   Palette, Hash, Globe, Verified, BadgeCheck, ShieldCheck, Play, Pause,
   SkipForward, Volume2, Layers, MapPinned, Route, Dot, Circle, CheckCircle2,
   AlertCircle, XCircle, PlusCircle, MinusCircle, ArrowUpRight, RefreshCw,
-  Power, Fingerprint, Brush, Rocket, Activity, BarChart3, LineChart,
+  Power, Fingerprint, Brush, Rocket, Activity, BarChart3, LineChart, Brain,
 };
 
 export type IconName = keyof typeof Icons;

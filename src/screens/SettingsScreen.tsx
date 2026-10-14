@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useAppData } from '@/lib/appData';
-import { GlassCard, GlassListItem, GlassToggle, GlassButton, GlassAvatar, GlassBackButton } from '@/components/Glass';
-import { GlassSheet } from '@/components/Overlays';
+import { GlassCard, GlassListItem, GlassToggle, GlassButton, GlassAvatar, GlassBackButton, GlassSegmented } from '@/components/Glass';
+import { GlassSheet, Toast } from '@/components/Overlays';
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import { SettingsDivider } from '@/components/settings/SettingsDivider';
 import { PremiumFeatureRow } from '@/components/settings/PremiumFeatureRow';
 import { getIcon } from '@/lib/icons';
 import { useTheme } from '@/lib/theme';
+
+const LANGUAGES = [
+  { id: 'en', name: 'English', nativeName: 'English (US)', flag: '🇺🇸' },
+  { id: 'fa', name: 'Persian', nativeName: 'فارسی', flag: '🇮🇷' },
+] as const;
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -24,11 +29,15 @@ export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpen
   const { me } = useAppData();
   const { theme, toggle } = useTheme();
   const [showPremium, setShowPremium] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'fa'>('en');
+  const [showLanguageSheet, setShowLanguageSheet] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const ChevronRight = getIcon('ChevronRight');
   const Moon = getIcon('Moon');
   const Sun = getIcon('Sun');
   const Crown = getIcon('Crown');
+  const Check = getIcon('Check');
 
   return (
     <div className="h-full overflow-y-auto no-scrollbar screen-enter-items">
@@ -163,7 +172,13 @@ export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpen
               icon="Globe"
               iconBg="rgb(59 130 246 / 0.2)"
               title="Language"
-              subtitle="English (US)"
+              subtitle={language === 'fa' ? 'فارسی (Persian)' : 'English (US)'}
+              onClick={() => setShowLanguageSheet(true)}
+              right={
+                <span className="text-[11px] font-bold text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20 mr-1">
+                  {language === 'fa' ? 'فارسی' : 'English'}
+                </span>
+              }
               showChevron
             />
           </GlassCard>
@@ -247,6 +262,50 @@ export function SettingsScreen({ onBack, onOpenPlans, onOpenPersonalInfo, onOpen
           </GlassButton>
         </div>
       </GlassSheet>
+
+      {/* Language Selection Sheet */}
+      <GlassSheet
+        open={showLanguageSheet}
+        onClose={() => setShowLanguageSheet(false)}
+        title="Language / زبان"
+      >
+        <div className="space-y-2.5 pt-2 pb-2">
+          {LANGUAGES.map((lang) => {
+            const isSelected = language === lang.id;
+            return (
+              <button
+                key={lang.id}
+                type="button"
+                onClick={() => {
+                  setLanguage(lang.id);
+                  setToastMessage(lang.id === 'fa' ? 'زبان برنامه به فارسی تغییر کرد' : 'Language set to English');
+                  setShowLanguageSheet(false);
+                }}
+                className={`w-full p-4 rounded-2xl glass transition-all flex items-center justify-between cursor-pointer spring-press ${
+                  isSelected ? 'ring-2 ring-pink-500/80 shadow-md bg-pink-500/10' : 'glass-thin hover:border-white/20'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{lang.flag}</span>
+                  <div className="text-left">
+                    <p className="text-body text-primary font-bold">{lang.nativeName}</p>
+                    <p className="text-caption text-secondary">{lang.name}</p>
+                  </div>
+                </div>
+
+                {isSelected && (
+                  <div className="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-xs">
+                    <Check size={16} strokeWidth={3} />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </GlassSheet>
+
+      {/* Floating Toast Notification */}
+      {toastMessage && <Toast message={toastMessage} open={Boolean(toastMessage)} />}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAppData } from '@/lib/appData';
-import { GlassCard, GlassButton, GlassBackButton, GlassAvatar, GlassBadgeIcon } from '@/components/Glass';
+import { GlassCard, GlassButton, GlassBackButton, GlassAvatar, GlassBadgeIcon, GlassSegmented } from '@/components/Glass';
 import { GlassSheet, Toast } from '@/components/Overlays';
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import { SettingsDivider } from '@/components/settings/SettingsDivider';
@@ -359,35 +359,25 @@ export function PrivacyScreen({ onBack }: PrivacyScreenProps) {
                   {dmAudience.replace(/_/g, ' ')}
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    { id: 'everyone', label: 'Everyone' },
-                    { id: 'friends_of_friends', label: 'Mutuals' },
-                    { id: 'friends', label: 'Friends' },
-                  ] as const
-                ).map((aud) => {
-                  const active = dmAudience === aud.id;
-                  return (
-                    <button
-                      key={aud.id}
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic(6);
-                        setDmAudience(aud.id);
-                        showToast(`DMs set to ${aud.label}`);
-                      }}
-                      className={`py-2 px-1 rounded-2xl text-[11px] font-bold text-center transition-all spring-press cursor-pointer ${
-                        active
-                          ? 'bg-pink-500 text-white shadow-xs ring-1 ring-pink-500'
-                          : 'glass-thin text-secondary hover:text-primary'
-                      }`}
-                    >
-                      {aud.label}
-                    </button>
-                  );
-                })}
-              </div>
+              <GlassSegmented
+                options={[
+                  { label: 'Everyone', value: 'everyone', icon: 'Globe' },
+                  { label: 'Mutuals', value: 'friends_of_friends', icon: 'Users' },
+                  { label: 'Friends', value: 'friends', icon: 'Heart' },
+                ]}
+                value={dmAudience}
+                onChange={(val) => {
+                  triggerHaptic(6);
+                  const aud = val as Audience;
+                  setDmAudience(aud);
+                  const labelMap: Record<string, string> = {
+                    everyone: 'Everyone',
+                    friends_of_friends: 'Mutuals',
+                    friends: 'Friends',
+                  };
+                  showToast(`DMs set to ${labelMap[aud] || aud}`);
+                }}
+              />
             </div>
 
             <SettingsDivider />
@@ -400,35 +390,25 @@ export function PrivacyScreen({ onBack }: PrivacyScreenProps) {
                   {inviteAudience === 'verified' ? 'Verified Only' : inviteAudience}
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    { id: 'everyone', label: 'Everyone' },
-                    { id: 'verified', label: 'Verified' },
-                    { id: 'friends', label: 'Friends Only' },
-                  ] as const
-                ).map((aud) => {
-                  const active = inviteAudience === aud.id;
-                  return (
-                    <button
-                      key={aud.id}
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic(6);
-                        setInviteAudience(aud.id);
-                        showToast(`Invites set to ${aud.label}`);
-                      }}
-                      className={`py-2 px-1 rounded-2xl text-[11px] font-bold text-center transition-all spring-press cursor-pointer ${
-                        active
-                          ? 'bg-pink-500 text-white shadow-xs ring-1 ring-pink-500'
-                          : 'glass-thin text-secondary hover:text-primary'
-                      }`}
-                    >
-                      {aud.label}
-                    </button>
-                  );
-                })}
-              </div>
+              <GlassSegmented
+                options={[
+                  { label: 'Everyone', value: 'everyone', icon: 'Globe' },
+                  { label: 'Verified', value: 'verified', icon: 'BadgeCheck' },
+                  { label: 'Friends', value: 'friends', icon: 'UserCheck' },
+                ]}
+                value={inviteAudience}
+                onChange={(val) => {
+                  triggerHaptic(6);
+                  const aud = val as InviteAudience;
+                  setInviteAudience(aud);
+                  const labelMap: Record<string, string> = {
+                    everyone: 'Everyone',
+                    verified: 'Verified Only',
+                    friends: 'Friends Only',
+                  };
+                  showToast(`Invites set to ${labelMap[aud] || aud}`);
+                }}
+              />
             </div>
           </GlassCard>
         </SettingsSection>

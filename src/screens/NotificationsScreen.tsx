@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { Variants } from 'framer-motion';
 import { useAppData } from '@/lib/appData';
-import { GlassCard, GlassBackButton, GlassEmpty } from '@/components/Glass';
+import { GlassCard, GlassBackButton, GlassEmpty, GlassSegmented } from '@/components/Glass';
 import { Toast } from '@/components/Overlays';
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import { getIcon, type IconName } from '@/lib/icons';
@@ -325,77 +325,42 @@ export function NotificationsScreen({
         </div>
 
         {/* View Switcher Segmented Control */}
-        <div className="mt-3 grid grid-cols-2 p-1 rounded-2xl bg-white/40 dark:bg-white/10 border border-white/20">
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic(6);
-              setActiveTab('feed');
-            }}
-            className={`py-1.5 rounded-xl text-foot font-bold transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'feed'
-                ? 'bg-white dark:bg-white/20 text-primary shadow-xs'
-                : 'text-tertiary hover:text-primary'
-            }`}
-          >
-            <span>Activity Feed</span>
-            {unreadCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic(6);
-              setActiveTab('settings');
-            }}
-            className={`py-1.5 rounded-xl text-foot font-bold transition-all flex items-center justify-center gap-1.5 ${
-              activeTab === 'settings'
-                ? 'bg-white dark:bg-white/20 text-primary shadow-xs'
-                : 'text-tertiary hover:text-primary'
-            }`}
-          >
-            <span>Preferences</span>
-          </button>
-        </div>
+        <GlassSegmented
+          className="mt-3"
+          options={[
+            {
+              label: `Activity Feed${unreadCount > 0 ? ` (${unreadCount})` : ''}`,
+              value: 'feed',
+              icon: 'Bell',
+            },
+            { label: 'Preferences', value: 'settings', icon: 'SlidersHorizontal' },
+          ]}
+          value={activeTab}
+          onChange={(v) => {
+            triggerHaptic(6);
+            setActiveTab(v as TabType);
+          }}
+        />
       </div>
 
       <div key={activeTab} className="px-5 mt-4 space-y-4 animate-rise">
         {activeTab === 'feed' ? (
           <>
             {/* Filter Pills Bar */}
-            <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar py-0.5">
-              <div className="flex items-center gap-1.5 shrink-0">
-                {(
-                  [
-                    { key: 'all', label: 'All' },
-                    { key: 'unread', label: `Unread (${unreadCount})` },
-                    { key: 'groups', label: 'Ekips' },
-                    { key: 'social', label: 'Social' },
-                    { key: 'rewards', label: 'Rewards' },
-                  ] as const
-                ).map((tabItem) => (
-                  <button
-                    key={tabItem.key}
-                    type="button"
-                    onClick={() => {
-                      triggerHaptic(6);
-                      setFilter(tabItem.key);
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-[12px] font-bold transition-all whitespace-nowrap cursor-pointer ${
-                      filter === tabItem.key
-                        ? 'bg-gradient-to-r from-pink-500 to-blue-500 text-white shadow-xs'
-                        : 'glass-thin border border-white/20 text-secondary hover:text-primary'
-                    }`}
-                  >
-                    {tabItem.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <GlassSegmented
+              options={[
+                { label: 'All', value: 'all', icon: 'Bell' },
+                { label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}`, value: 'unread', icon: 'CircleDot' },
+                { label: 'Ekips', value: 'groups', icon: 'Users' },
+                { label: 'Social', value: 'social', icon: 'MessageCircle' },
+                { label: 'Rewards', value: 'rewards', icon: 'Trophy' },
+              ]}
+              value={filter}
+              onChange={(v) => {
+                triggerHaptic(6);
+                setFilter(v as FeedFilter);
+              }}
+            />
 
             {/* Quick Actions Row */}
             <div className="flex items-center justify-between pt-1 pb-1">
@@ -811,32 +776,22 @@ export function NotificationsScreen({
                   </div>
 
                   {quietHours && (
-                    <div className="pt-2 grid grid-cols-3 gap-1.5">
-                      {(
-                        [
-                          { key: '22-8', label: '22:00 – 08:00' },
-                          { key: '23-7', label: '23:00 – 07:00' },
-                          { key: 'all-night', label: '00:00 – 09:00' },
-                        ] as const
-                      ).map((item) => (
-                        <button
-                          key={item.key}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic(6);
-                            setQuietHoursSchedule(item.key);
-                            showToast(`Quiet hours schedule set to ${item.label}`);
-                          }}
-                          className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all ${
-                            quietHoursSchedule === item.key
-                              ? 'bg-indigo-500 text-white shadow-xs'
-                              : 'bg-white/40 dark:bg-white/5 text-secondary hover:text-primary'
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
+                    <GlassSegmented
+                      className="mt-2"
+                      options={[
+                        { label: '22:00 – 08:00', value: '22-8', icon: 'Moon' },
+                        { label: '23:00 – 07:00', value: '23-7', icon: 'Moon' },
+                        { label: '00:00 – 09:00', value: 'all-night', icon: 'Moon' },
+                      ]}
+                      value={quietHoursSchedule}
+                      onChange={(v) => {
+                        triggerHaptic(6);
+                        const scheduleKey = v as '22-8' | '23-7' | 'all-night';
+                        setQuietHoursSchedule(scheduleKey);
+                        const labels = { '22-8': '22:00 – 08:00', '23-7': '23:00 – 07:00', 'all-night': '00:00 – 09:00' };
+                        showToast(`Quiet hours schedule set to ${labels[scheduleKey]}`);
+                      }}
+                    />
                   )}
                 </div>
 
@@ -850,33 +805,22 @@ export function NotificationsScreen({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-1.5 pt-1">
-                    {(
-                      [
-                        { key: 'instant', label: 'Instant' },
-                        { key: 'daily', label: 'Daily' },
-                        { key: 'weekly', label: 'Weekly' },
-                        { key: 'off', label: 'Off' },
-                      ] as const
-                    ).map((freq) => (
-                      <button
-                        key={freq.key}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic(6);
-                          setEmailDigest(freq.key);
-                          showToast(`Email digest: ${freq.label}`);
-                        }}
-                        className={`py-1.5 rounded-xl text-[11px] font-bold transition-all ${
-                          emailDigest === freq.key
-                            ? 'bg-white dark:bg-white/20 text-primary shadow-xs'
-                            : 'bg-white/30 dark:bg-white/5 text-secondary hover:text-primary'
-                        }`}
-                      >
-                        {freq.label}
-                      </button>
-                    ))}
-                  </div>
+                  <GlassSegmented
+                    className="mt-1"
+                    options={[
+                      { label: 'Instant', value: 'instant', icon: 'Zap' },
+                      { label: 'Daily', value: 'daily', icon: 'Calendar' },
+                      { label: 'Weekly', value: 'weekly', icon: 'Clock' },
+                      { label: 'Off', value: 'off', icon: 'EyeOff' },
+                    ]}
+                    value={emailDigest}
+                    onChange={(v) => {
+                      triggerHaptic(6);
+                      const freq = v as 'instant' | 'daily' | 'weekly' | 'off';
+                      setEmailDigest(freq);
+                      showToast(`Email digest: ${freq}`);
+                    }}
+                  />
                 </div>
               </GlassCard>
             </SettingsSection>

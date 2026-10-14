@@ -292,6 +292,9 @@ export function GlassSegmented({ options, value, onChange, className = '' }: Gla
     e.currentTarget.style.setProperty('--mouse-y', `${relY.toFixed(1)}%`);
   };
 
+  const textSizeClass = count >= 4 ? 'text-[11px] gap-1 px-1' : 'text-foot gap-1.5 px-2';
+  const iconSize = count >= 4 ? 13 : 15;
+
   return (
     <div
       onPointerMove={handlePointerMove}
@@ -313,13 +316,14 @@ export function GlassSegmented({ options, value, onChange, className = '' }: Gla
         return (
           <button
             key={opt.value}
+            type="button"
             onClick={() => handleSelect(opt.value)}
-            className={`relative z-10 flex items-center justify-center gap-1.5 py-2 rounded-xl text-foot font-semibold transition-all duration-200 spring-press cursor-pointer ${
+            className={`relative z-10 flex items-center justify-center ${textSizeClass} py-2 rounded-xl font-semibold transition-all duration-200 spring-press cursor-pointer ${
               active ? 'text-primary font-bold' : 'text-tertiary hover:text-secondary'
             }`}
           >
-            {Icon && <Icon size={15} strokeWidth={active ? 2.5 : 2} />}
-            {opt.label}
+            {Icon && <Icon size={iconSize} strokeWidth={active ? 2.5 : 2} className="shrink-0" />}
+            <span className="truncate">{opt.label}</span>
           </button>
         );
       })}

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAppData } from '@/lib/appData';
 import { GlassSheet, Toast } from '@/components/Overlays';
-import { GlassEmpty } from '@/components/Glass';
+import { GlassEmpty, GlassSegmented } from '@/components/Glass';
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { getIcon } from '@/lib/icons';
 import type { Notification, Group } from '@/types/database';
@@ -164,35 +164,20 @@ export function NotificationsSheet({
         )}
 
         {/* Filter Pills Bar */}
-        <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar py-0.5">
-          <div className="flex items-center gap-1.5 shrink-0">
-            {(
-              [
-                { key: 'all', label: 'All' },
-                { key: 'unread', label: `Unread (${unreadCount})` },
-                { key: 'groups', label: 'Ekips' },
-                { key: 'social', label: 'Social' },
-                { key: 'rewards', label: 'Rewards' },
-              ] as const
-            ).map((tabItem) => (
-              <button
-                key={tabItem.key}
-                type="button"
-                onClick={() => {
-                  triggerHaptic(6);
-                  setFilter(tabItem.key);
-                }}
-                className={`px-3 py-1.5 rounded-full text-[12px] font-bold transition-all whitespace-nowrap cursor-pointer ${
-                  filter === tabItem.key
-                    ? 'bg-gradient-to-r from-pink-500 to-blue-500 text-white shadow-xs'
-                    : 'glass-thin border border-white/20 text-secondary hover:text-primary'
-                }`}
-              >
-                {tabItem.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <GlassSegmented
+          options={[
+            { label: 'All', value: 'all', icon: 'Bell' },
+            { label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}`, value: 'unread', icon: 'CircleDot' },
+            { label: 'Ekips', value: 'groups', icon: 'Users' },
+            { label: 'Social', value: 'social', icon: 'MessageCircle' },
+            { label: 'Rewards', value: 'rewards', icon: 'Trophy' },
+          ]}
+          value={filter}
+          onChange={(v) => {
+            triggerHaptic(6);
+            setFilter(v as FeedFilter);
+          }}
+        />
 
         {/* Quick Actions Row */}
         <div className="flex items-center justify-between pt-1 pb-1">

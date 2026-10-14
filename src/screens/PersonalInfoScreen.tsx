@@ -1,6 +1,6 @@
 import { useState, useId } from 'react';
 import { useAppData } from '@/lib/appData';
-import { GlassCard, GlassButton, GlassBackButton, GlassAvatar } from '@/components/Glass';
+import { GlassCard, GlassButton, GlassBackButton, GlassAvatar, GlassSegmented } from '@/components/Glass';
 import { Toast } from '@/components/Overlays';
 import { getIcon } from '@/lib/icons';
 import type { Gender } from '@/types/database';
@@ -35,12 +35,33 @@ const POPULAR_INTERESTS = [
   'Books', 'Art', 'Cinema', 'Gaming',
 ];
 
-const PERSONALITY_TYPES = [
-  'ENFJ', 'ENFP', 'ENTJ', 'ENTP',
-  'INFJ', 'INFP', 'INTJ', 'INTP',
-  'ESFJ', 'ESFP', 'ESTJ', 'ESTP',
-  'ISFJ', 'ISFP', 'ISTJ', 'ISTP',
-];
+const MBTI_CATEGORIES = {
+  Analysts: ['INTJ', 'INTP', 'ENTJ', 'ENTP'],
+  Diplomats: ['INFJ', 'INFP', 'ENFJ', 'ENFP'],
+  Sentinels: ['ISTJ', 'ISFJ', 'ESTJ', 'ESFJ'],
+  Explorers: ['ISTP', 'ISFP', 'ESTP', 'ESFP'],
+} as const;
+
+type MbtiCategory = keyof typeof MBTI_CATEGORIES;
+
+const MBTI_DESCRIPTIONS: Record<string, { title: string; category: MbtiCategory }> = {
+  INTJ: { title: 'Architect • Strategic & Analytical', category: 'Analysts' },
+  INTP: { title: 'Logician • Innovative & Curious', category: 'Analysts' },
+  ENTJ: { title: 'Commander • Bold & Decisive', category: 'Analysts' },
+  ENTP: { title: 'Debater • Smart & Curious', category: 'Analysts' },
+  INFJ: { title: 'Advocate • Quiet & Mystical', category: 'Diplomats' },
+  INFP: { title: 'Mediator • Poetic & Kind', category: 'Diplomats' },
+  ENFJ: { title: 'Protagonist • Inspiring Leader', category: 'Diplomats' },
+  ENFP: { title: 'Campaigner • Enthusiastic & Creative', category: 'Diplomats' },
+  ISTJ: { title: 'Logistician • Practical & Fact-minded', category: 'Sentinels' },
+  ISFJ: { title: 'Defender • Dedicated & Warm', category: 'Sentinels' },
+  ESTJ: { title: 'Executive • Organized Manager', category: 'Sentinels' },
+  ESFJ: { title: 'Consul • Caring & Social', category: 'Sentinels' },
+  ISTP: { title: 'Virtuoso • Bold & Practical', category: 'Explorers' },
+  ISFP: { title: 'Adventurer • Flexible & Charming', category: 'Explorers' },
+  ESTP: { title: 'Entrepreneur • Smart & Energetic', category: 'Explorers' },
+  ESFP: { title: 'Entertainer • Spontaneous & Enthusiastic', category: 'Explorers' },
+};
 
 export function PersonalInfoScreen({ onBack, onOpenVerification }: PersonalInfoScreenProps) {
   const { me, updateMe } = useAppData();
@@ -55,6 +76,26 @@ export function PersonalInfoScreen({ onBack, onOpenVerification }: PersonalInfoS
   const [age, setAge] = useState<string>(me.age ? String(me.age) : '26');
   const [gender, setGender] = useState<Gender | 'other'>(me.gender || 'female');
   const [personalityType, setPersonalityType] = useState(me.personality_type || 'ENFJ');
+
+  const currentCategory: MbtiCategory =
+    MBTI_DESCRIPTIONS[personalityType?.toUpperCase()]?.category || 'Diplomats';
+  const [activeMbtiCategory, setActiveMbtiCategory] = useState<MbtiCategory>(currentCategory);
+
+  const eOrI = personalityType?.[0]?.toUpperCase() === 'I' ? 'I' : 'E';
+  const nOrS = personalityType?.[1]?.toUpperCase() === 'S' ? 'S' : 'N';
+  const fOrT = personalityType?.[2]?.toUpperCase() === 'T' ? 'T' : 'F';
+  const jOrP = personalityType?.[3]?.toUpperCase() === 'P' ? 'P' : 'J';
+
+  const handleUpdateDimension = (index: number, val: string) => {
+    triggerHaptic(6);
+    const chars = [eOrI, nOrS, fOrT, jOrP];
+    chars[index] = val;
+    const newType = chars.join('');
+    setPersonalityType(newType);
+    if (MBTI_DESCRIPTIONS[newType]) {
+      setActiveMbtiCategory(MBTI_DESCRIPTIONS[newType].category);
+    }
+  };
   const [email, setEmail] = useState(me.email || 'aria@ekip.app');
   const [phone, setPhone] = useState(me.phone || '+1 415 555 0142');
   const [avatarUrl, setAvatarUrl] = useState(me.avatar_url || AVATAR_PRESETS[0]);
@@ -417,34 +458,19 @@ export function PersonalInfoScreen({ onBack, onOpenVerification }: PersonalInfoS
               <label className="block text-foot text-secondary font-semibold mb-2">
                 Gender Identity
               </label>
-              <div className="grid grid-cols-4 gap-2">
-                {(['female', 'male', 'nonbinary', 'other'] as const).map((g) => {
-                  const isSelected = gender === g;
-                  const labelMap: Record<string, string> = {
-                    female: 'Female',
-                    male: 'Male',
-                    nonbinary: 'Non-binary',
-                    other: 'Other',
-                  };
-                  return (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic(6);
-                        setGender(g);
-                      }}
-                      className={`py-2 px-1 rounded-xl text-[11px] font-bold capitalize transition-all spring-press cursor-pointer ${
-                        isSelected
-                          ? 'bg-pink-500 text-white shadow-sm'
-                          : 'glass-thin text-secondary hover:text-primary'
-                      }`}
-                    >
-                      {labelMap[g]}
-                    </button>
-                  );
-                })}
-              </div>
+              <GlassSegmented
+                options={[
+                  { label: 'Female', value: 'female', icon: 'User' },
+                  { label: 'Male', value: 'male', icon: 'UserCheck' },
+                  { label: 'Non-binary', value: 'nonbinary', icon: 'Sparkles' },
+                  { label: 'Other', value: 'other', icon: 'MoreHorizontal' },
+                ]}
+                value={gender}
+                onChange={(v) => {
+                  triggerHaptic(6);
+                  setGender(v as Gender | 'other');
+                }}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -494,33 +520,126 @@ export function PersonalInfoScreen({ onBack, onOpenVerification }: PersonalInfoS
             </div>
 
             <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Sparkles size={14} className="text-pink-500" strokeWidth={2.4} />
-                <label className="text-foot text-secondary font-semibold">
-                  Personality Type (MBTI)
-                </label>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-pink-500" strokeWidth={2.4} />
+                  <label className="text-foot text-secondary font-semibold">
+                    Personality Type (MBTI)
+                  </label>
+                </div>
+                <span className="text-caption font-bold px-2.5 py-0.5 rounded-full bg-pink-500/15 text-pink-500 border border-pink-500/20">
+                  {personalityType?.toUpperCase() || 'ENFJ'}
+                </span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {PERSONALITY_TYPES.map((type) => {
-                  const isSelected = personalityType?.toUpperCase().includes(type);
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic(6);
-                        setPersonalityType(type);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl text-foot font-semibold transition-all spring-press cursor-pointer ${
-                        isSelected
-                          ? 'bg-pink-500 text-white shadow-xs'
-                          : 'glass-thin text-secondary hover:text-primary'
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  );
-                })}
+
+              {/* MBTI Info Card */}
+              <div className="glass-thin rounded-2xl p-3 mb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-body font-bold text-primary mr-2">
+                    {personalityType?.toUpperCase() || 'ENFJ'}
+                  </span>
+                  <span className="text-foot text-secondary">
+                    {MBTI_DESCRIPTIONS[personalityType?.toUpperCase()]?.title || 'Protagonist • Inspiring Leader'}
+                  </span>
+                </div>
+              </div>
+
+              {/* 1. Category Segmented Control */}
+              <div className="space-y-1.5 mb-3">
+                <span className="text-[11px] text-tertiary font-bold uppercase tracking-wider block">
+                  Category Group
+                </span>
+                <GlassSegmented
+                  options={[
+                    { label: 'Analysts', value: 'Analysts', icon: 'Brain' },
+                    { label: 'Diplomats', value: 'Diplomats', icon: 'Heart' },
+                    { label: 'Sentinels', value: 'Sentinels', icon: 'Shield' },
+                    { label: 'Explorers', value: 'Explorers', icon: 'Compass' },
+                  ]}
+                  value={activeMbtiCategory}
+                  onChange={(cat) => {
+                    triggerHaptic(6);
+                    const newCat = cat as MbtiCategory;
+                    setActiveMbtiCategory(newCat);
+                    const defaultInCat = MBTI_CATEGORIES[newCat][0];
+                    setPersonalityType(defaultInCat);
+                  }}
+                />
+              </div>
+
+              {/* 2. Specific Type Segmented Control for Active Category */}
+              <div className="space-y-1.5 mb-3.5">
+                <span className="text-[11px] text-tertiary font-bold uppercase tracking-wider block">
+                  Types in {activeMbtiCategory}
+                </span>
+                <GlassSegmented
+                  options={MBTI_CATEGORIES[activeMbtiCategory].map((t) => ({
+                    label: t,
+                    value: t,
+                  }))}
+                  value={personalityType?.toUpperCase()}
+                  onChange={(t) => {
+                    triggerHaptic(6);
+                    setPersonalityType(t);
+                  }}
+                />
+              </div>
+
+              {/* 3. Four Dichotomy Dimensions Segmented Controls */}
+              <div className="space-y-2.5 pt-2 border-t border-white/10">
+                <span className="text-[11px] text-tertiary font-bold uppercase tracking-wider block">
+                  4-Trait Dimensions
+                </span>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-tertiary font-medium mb-1 block">Energy</span>
+                    <GlassSegmented
+                      options={[
+                        { label: 'Extrovert (E)', value: 'E' },
+                        { label: 'Introvert (I)', value: 'I' },
+                      ]}
+                      value={eOrI}
+                      onChange={(v) => handleUpdateDimension(0, v)}
+                    />
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-tertiary font-medium mb-1 block">Mind</span>
+                    <GlassSegmented
+                      options={[
+                        { label: 'Intuitive (N)', value: 'N' },
+                        { label: 'Sensing (S)', value: 'S' },
+                      ]}
+                      value={nOrS}
+                      onChange={(v) => handleUpdateDimension(1, v)}
+                    />
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-tertiary font-medium mb-1 block">Nature</span>
+                    <GlassSegmented
+                      options={[
+                        { label: 'Feeling (F)', value: 'F' },
+                        { label: 'Thinking (T)', value: 'T' },
+                      ]}
+                      value={fOrT}
+                      onChange={(v) => handleUpdateDimension(2, v)}
+                    />
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-tertiary font-medium mb-1 block">Tactics</span>
+                    <GlassSegmented
+                      options={[
+                        { label: 'Judging (J)', value: 'J' },
+                        { label: 'Prospect (P)', value: 'P' },
+                      ]}
+                      value={jOrP}
+                      onChange={(v) => handleUpdateDimension(3, v)}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </GlassCard>

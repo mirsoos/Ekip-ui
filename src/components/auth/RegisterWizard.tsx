@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GlassButton, GlassInput, GlassCard, GlassBackButton } from '@/components/Glass';
+import { GlassButton, GlassInput, GlassCard, GlassBackButton, GlassSegmented } from '@/components/Glass';
 import { StepProgressBar } from '@/components/common/StepProgressBar';
 import { getIcon } from '@/lib/icons';
 
@@ -8,7 +8,6 @@ interface RegisterWizardProps {
   onComplete: () => void;
 }
 
-const genders = ['Male', 'Female', 'Non-binary', 'Other'];
 const availableCities = ['San Francisco', 'New York', 'Los Angeles', 'Seattle', 'Austin', 'Miami'];
 const totalSteps = 4;
 
@@ -16,7 +15,7 @@ export function RegisterWizard({ onBack, onComplete }: RegisterWizardProps) {
   const [step, setStep] = useState(0);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState('');
+  const [gender, setGender] = useState('Female');
   const [age, setAge] = useState('');
   const [username, setUsername] = useState('');
   const [city, setCity] = useState('San Francisco');
@@ -62,27 +61,16 @@ export function RegisterWizard({ onBack, onComplete }: RegisterWizardProps) {
             <GlassInput icon="User" placeholder="Last name" value={lastName} onChange={setLastName} />
             <div>
               <p className="text-foot text-secondary mb-2 ml-1">Gender</p>
-              <div className="flex flex-wrap gap-2">
-                {genders.map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    onClick={() => setGender(g)}
-                    className={`px-4 py-2 rounded-full text-foot font-semibold transition-all duration-300 spring-press cursor-pointer ${
-                      gender === g
-                        ? 'text-white shadow-md'
-                        : 'glass-thin glass-specular text-secondary hover:text-primary'
-                    }`}
-                    style={
-                      gender === g
-                        ? { background: 'linear-gradient(135deg, rgb(244 114 182), rgb(59 130 246))' }
-                        : undefined
-                    }
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
+              <GlassSegmented
+                options={[
+                  { label: 'Female', value: 'Female', icon: 'User' },
+                  { label: 'Male', value: 'Male', icon: 'UserCheck' },
+                  { label: 'Non-binary', value: 'Non-binary', icon: 'Sparkles' },
+                  { label: 'Other', value: 'Other', icon: 'MoreHorizontal' },
+                ]}
+                value={gender}
+                onChange={setGender}
+              />
             </div>
           </div>
         </div>
