@@ -43,6 +43,8 @@ function MissionCard({ mission, index }: { mission: Mission; index: number }) {
 
     // Staggered fill trigger so missions cascade sequentially
     const startDelay = 80 + index * 120;
+    let frameId: number | null = null;
+
     const timer = setTimeout(() => {
       setFillPct(targetPct);
 
@@ -51,7 +53,6 @@ function MissionCard({ mission, index }: { mission: Mission; index: number }) {
       const startTime = performance.now();
       const targetVal = mission.progress;
 
-      let frameId: number;
       const animateCounter = (now: number) => {
         const elapsed = now - startTime;
         const progressRatio = Math.min(1, elapsed / duration);
@@ -68,10 +69,12 @@ function MissionCard({ mission, index }: { mission: Mission; index: number }) {
       };
 
       frameId = requestAnimationFrame(animateCounter);
-      return () => cancelAnimationFrame(frameId);
     }, startDelay);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
   }, [targetPct, mission.progress, index]);
 
   return (

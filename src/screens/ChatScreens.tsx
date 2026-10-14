@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAppData } from '@/lib/appData';
 import { GlassInput, GlassEmpty } from '@/components/Glass';
 import { NotificationButton } from '@/components/NotificationButton';
@@ -82,6 +82,15 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, [conversationId, convMessages.length]);
 
+  const replyTimersRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => {
+      replyTimersRef.current.forEach((t) => window.clearTimeout(t));
+      replyTimersRef.current = [];
+    };
+  }, []);
+
   if (!conv) return null;
 
   const handleSend = () => {
@@ -91,7 +100,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
     setInput('');
 
     // Simulated reply
-    setTimeout(() => {
+    const t = window.setTimeout(() => {
       const replies = [
         'Sounds great!',
         'Let me check and get back to you.',
@@ -103,6 +112,7 @@ export function ConversationScreen({ conversationId, onBack }: ConversationScree
       const reply = replies[Math.floor(Math.random() * replies.length)];
       addMessage(conversationId, reply);
     }, 1500);
+    replyTimersRef.current.push(t);
   };
 
   return (

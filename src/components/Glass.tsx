@@ -33,6 +33,7 @@ export function GlassCard({
     edge && 'glass-edge',
     glow && 'glass-glow',
     caustic && 'glass-caustic glass-caustic-drift',
+    'liquid-motion',
   ]
     .filter(Boolean)
     .join(' ');
@@ -282,11 +283,24 @@ export function GlassSegmented({ options, value, onChange, className = '' }: Gla
     onChange(v);
   };
 
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const relX = Math.min(100, Math.max(0, ((e.clientX - rect.left) / rect.width) * 100));
+    const relY = Math.min(100, Math.max(0, ((e.clientY - rect.top) / rect.height) * 100));
+    e.currentTarget.style.setProperty('--mouse-x', `${relX.toFixed(1)}%`);
+    e.currentTarget.style.setProperty('--mouse-y', `${relY.toFixed(1)}%`);
+  };
+
   return (
-    <div className={`relative glass-thin glass-specular rounded-2xl p-1 grid ${className}`} style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
+    <div
+      onPointerMove={handlePointerMove}
+      className={`relative glass-thin glass-specular rounded-2xl p-1 grid liquid-motion ${className}`}
+      style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}
+    >
       <div
         aria-hidden="true"
-        className="absolute inset-y-1 rounded-xl glass-lens pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="absolute inset-y-1 rounded-xl glass-lens pointer-events-none liquid-motion transition-all duration-300 ease-[cubic-bezier(0.25,1,0.3,1)]"
         style={{
           width: `calc((100% - 0.5rem) / ${count})`,
           left: '0.25rem',

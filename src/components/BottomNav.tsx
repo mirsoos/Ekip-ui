@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, type PointerEvent } from 'react';
-import { motion, useMotionValue, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { getIcon, type IconName } from '@/lib/icons';
 import { useAppData } from '@/lib/appData';
 
@@ -33,9 +33,22 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
   const navRef = useRef<HTMLElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isMagneticLocked, setIsMagneticLocked] = useState(false);
 
   // Framer Motion spring-driven x position in pixels
   const x = useMotionValue(0);
+
+  // Dynamic optical light glare tracking that physically shifts as x moves
+  const reflectionGradient = useTransform(
+    x,
+    [0, 280],
+    [
+      'radial-gradient(circle at 20% 0%, rgba(var(--glass-tint) / 0.85) 0%, rgba(var(--glass-tint) / 0.30) 45%, rgba(var(--glass-tint) / 0.10) 75%, transparent 100%)',
+      'radial-gradient(circle at 80% 0%, rgba(var(--glass-tint) / 0.85) 0%, rgba(var(--glass-tint) / 0.30) 45%, rgba(var(--glass-tint) / 0.10) 75%, transparent 100%)',
+    ]
+  );
+
+  const causticShift = useTransform(x, [0, 280], ['-20%', '20%']);
 
   // Measure slot width accurately based on nav inner bounds
   const getSlotWidth = useCallback(() => {
@@ -50,12 +63,12 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
     const slotW = getSlotWidth();
     const targetPx = activeIndex * slotW;
 
-    // Fluid spring alignment to active slot
+    // Fluid spring alignment to active slot with magnetic snap stiffness
     const controls = animate(x, targetPx, {
       type: 'spring',
-      stiffness: 450,
-      damping: 35,
-      mass: 0.8,
+      stiffness: 480,
+      damping: 28,
+      mass: 0.75,
     });
 
     return () => controls.stop();
@@ -86,6 +99,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
 
   const wasDraggedRef = useRef(false);
   const hoveredIndexRef = useRef<number | null>(null);
+  const magneticVibeRef = useRef<number | null>(null);
 
   const triggerHaptic = (ms: number = 8) => {
     if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
@@ -102,7 +116,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
       wasDraggedRef.current = false;
       return;
     }
-    triggerHaptic(8);
+    triggerHaptic(10);
     onChange(key);
   };
 
@@ -134,7 +148,22 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
     }
   };
 
+  const updatePointerCoordinates = useCallback((clientX: number, clientY: number) => {
+    if (!navRef.current) return;
+    const rect = navRef.current.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const relX = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+    const relY = Math.min(100, Math.max(0, ((clientY - rect.top) / rect.height) * 100));
+    navRef.current.style.setProperty('--mouse-x', `${relX.toFixed(1)}%`);
+    navRef.current.style.setProperty('--mouse-y', `${relY.toFixed(1)}%`);
+  }, []);
+
+  const handleNavPointerMove = (e: PointerEvent) => {
+    updatePointerCoordinates(e.clientX, e.clientY);
+  };
+
   const handlePointerMove = (e: PointerEvent) => {
+    updatePointerCoordinates(e.clientX, e.clientY);
     const info = dragInfoRef.current;
     if (!info || info.pointerId !== e.pointerId) return;
 
@@ -163,23 +192,54 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
     }
 
     const slotW = info.slotW;
-    let newX = info.startLensX + dx;
+    let rawX = info.startLensX + dx;
     const minX = 0;
     const maxX = 4 * slotW;
 
     // Progressive Apple rubberband resistance at boundaries
-    if (newX < minX) {
-      newX = minX - Math.pow(minX - newX, 0.8) * 1.6;
-    } else if (newX > maxX) {
-      newX = maxX + Math.pow(newX - maxX, 0.8) * 1.6;
+    if (rawX < minX) {
+      rawX = minX - Math.pow(minX - rawX, 0.8) * 1.5;
+    } else if (rawX > maxX) {
+      rawX = maxX + Math.pow(rawX - maxX, 0.8) * 1.5;
     }
 
-    // Follow the pointer precisely with zero lag
-    x.set(newX);
+    // --- MAGNETIC GRAVITATIONAL PULL MECHANICS ---
+    // Identify closest tab slot center
+    const closestSlot = Math.max(0, Math.min(4, Math.round(rawX / slotW)));
+    const targetSlotX = closestSlot * slotW;
+    const signedDistance = rawX - targetSlotX;
+    const absDistance = Math.abs(signedDistance);
+    const magneticZoneRadius = slotW * 0.65; // ~45px threshold zone
+
+    let finalX = rawX;
+    let isLocked = false;
+
+    // If dragging across Create orb (index 2), ignore magnetic locking
+    if (closestSlot !== 2 && absDistance < magneticZoneRadius) {
+      // Nonlinear gravitational attraction curve
+      const pullFactor = 1 - Math.pow(absDistance / magneticZoneRadius, 1.8);
+      // Magnetically draw lens towards target center slot
+      finalX = targetSlotX + signedDistance * (1 - pullFactor * 0.72);
+
+      if (absDistance < 18) {
+        isLocked = true;
+      }
+    }
+
+    x.set(finalX);
+
+    // Trigger magnetic tactile pulse on snap capture entry
+    if (isLocked && magneticVibeRef.current !== closestSlot) {
+      magneticVibeRef.current = closestSlot;
+      triggerHaptic(8);
+    } else if (!isLocked) {
+      magneticVibeRef.current = null;
+    }
+
+    setIsMagneticLocked(isLocked);
 
     // Calculate slot directly from the center of the dragged lens
-    // Lens is slotW wide, so lensCenter = newX + slotW / 2
-    const lensCenter = newX + slotW / 2;
+    const lensCenter = finalX + slotW / 2;
     const currentSlot = Math.max(0, Math.min(4, Math.floor(lensCenter / slotW)));
 
     if (currentSlot !== hoveredIndexRef.current) {
@@ -205,8 +265,10 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
 
     dragInfoRef.current = null;
     setIsDragging(false);
+    setIsMagneticLocked(false);
     setHoveredIndex(null);
     hoveredIndexRef.current = null;
+    magneticVibeRef.current = null;
 
     if (hasMoved) {
       // Determine target slot from lens center + flick velocity
@@ -215,7 +277,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
       let targetSlot = Math.max(0, Math.min(4, Math.floor(lensCenter / slotW)));
 
       // If user flicked with noticeable velocity, advance slot in flick direction
-      if (Math.abs(velocity) > 0.35) {
+      if (Math.abs(velocity) > 0.30) {
         if (velocity > 0 && targetSlot < 4) {
           targetSlot = Math.min(4, targetSlot + 1);
         } else if (velocity < 0 && targetSlot > 0) {
@@ -226,18 +288,20 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
       const targetX = targetSlot * slotW;
       const targetTab = tabs[targetSlot].key;
 
-      // Authentic Framer Motion spring physics animation into the target slot
+      // Authentic Framer Motion liquid rubber spring snapping into destination slot
       animate(x, targetX, {
         type: 'spring',
-        stiffness: 420,
-        damping: 32,
-        mass: 0.8,
-        velocity: velocity * 1000, // convert px/ms to px/s for Framer Motion
+        stiffness: 480,
+        damping: 28,
+        mass: 0.75,
+        velocity: velocity * 1000,
       });
 
       if (targetTab !== active) {
-        triggerHaptic(12);
+        triggerHaptic(14);
         onChange(targetTab);
+      } else {
+        triggerHaptic(8);
       }
     }
 
@@ -248,29 +312,69 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
 
   return (
     <div className="absolute bottom-0 left-0 right-0 z-40 px-3 pb-4 pt-1 pointer-events-none select-none">
+      {/* SVG Liquid Refraction Filter for optical glass distortion */}
+      <svg className="absolute w-0 h-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <defs>
+          <filter id="chromatic-liquid-refraction" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02 0.04" numOctaves="2" result="rippleNoise" seed="5">
+              <animate attributeName="baseFrequency" dur="4s" values="0.015 0.03;0.035 0.06;0.015 0.03" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="rippleNoise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+
       <nav
         ref={navRef}
-        className="pointer-events-auto relative glass-dock rounded-[32px] px-1.5 py-1.5 grid grid-cols-5 items-center select-none touch-none"
+        onPointerMove={handleNavPointerMove}
+        className="pointer-events-auto relative glass-dock rounded-[32px] px-1.5 py-1.5 grid grid-cols-5 items-center select-none touch-none liquid-motion"
       >
-        {/* iOS Liquid Glass sliding lens with Framer Motion spring follower */}
+        {/* iOS Liquid Glass sliding lens with Framer Motion spring follower & magnetic snap physics */}
         <motion.div
           aria-hidden="true"
-          className="absolute inset-y-1.5 left-1.5 rounded-[22px] glass-lens pointer-events-none"
+          className={`absolute inset-y-1.5 left-1.5 rounded-[22px] glass-lens pointer-events-none overflow-hidden ${
+            isMagneticLocked ? 'glass-lens-magnetic' : ''
+          } ${isDragging ? 'glass-lens-dragging' : ''}`}
           style={{
             x,
             width: 'calc((100% - 0.75rem) / 5)',
+            display: (isDragging ? hoveredIndex === 2 : active === 'create') ? 'none' : 'block',
           }}
           animate={{
-            scale: isDragging ? 1.05 : 1,
-            boxShadow: isDragging
-              ? '0 12px 30px -4px rgba(0, 0, 0, 0.25), 0 4px 14px rgba(244, 114, 182, 0.28), 0 2px 8px rgba(59, 130, 246, 0.20)'
-              : '0 2px 8px rgba(0, 0, 0, 0.06)',
+            opacity: (isDragging ? hoveredIndex === 2 : active === 'create') ? 0 : 1,
+            scaleX: isMagneticLocked ? 0.92 : isDragging ? 1.08 : 1,
+            scaleY: isMagneticLocked ? 1.10 : isDragging ? 0.92 : 1,
           }}
           transition={{
-            scale: { type: 'spring', stiffness: 500, damping: 30 },
-            boxShadow: { duration: 0.2 },
+            opacity: { duration: 0.18 },
+            scaleX: { type: 'spring', stiffness: 520, damping: 26 },
+            scaleY: { type: 'spring', stiffness: 520, damping: 26 },
           }}
-        />
+        >
+          {/* Subtle Monochromatic Specular Distortion Layers */}
+          <div className="chromatic-layer-red" />
+          <div className="chromatic-layer-cyan" />
+
+          {/* Animated Liquid Ripple Refraction Distortion */}
+          <div className="liquid-ripple-wave" />
+
+          {/* Dynamic Optical Glare Reflection shifting with lens movement */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none rounded-[22px] opacity-80 dark:opacity-25"
+            style={{
+              background: reflectionGradient,
+            }}
+          />
+
+          {/* Dynamic Caustic Refraction Arc */}
+          <motion.div
+            className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] pointer-events-none opacity-70 dark:opacity-20"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(var(--glass-tint) / 0.60) 0%, rgba(var(--glass-tint) / 0.12) 40%, transparent 70%)',
+              x: causticShift,
+            }}
+          />
+        </motion.div>
 
         {tabs.map((tab, idx) => {
           const isActive = tab.key === active;
@@ -289,9 +393,9 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                   onPointerUp={handlePointerUp}
                   onPointerCancel={handlePointerUp}
                   aria-label={isActive ? 'Close create and return to discover' : 'Create new Ekip'}
-                  className={`-mt-5 w-[50px] h-[50px] rounded-full liquid-orb flex items-center justify-center spring-press group transition-transform duration-200 ${
+                  className={`-mt-5 w-[50px] h-[50px] rounded-full liquid-orb flex items-center justify-center spring-press group transition-all duration-200 ${
                     isSlotActive
-                      ? 'ring-2 ring-white/90 ring-offset-2 ring-offset-[rgb(var(--bg-canvas))] cursor-grab active:cursor-grabbing scale-105'
+                      ? 'cursor-grab active:cursor-grabbing scale-105 !border-transparent !border-0 shadow-md'
                       : 'cursor-pointer'
                   }`}
                 >
@@ -347,6 +451,14 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                         ? 'text-primary scale-110'
                         : 'text-tertiary group-hover:text-secondary group-hover:scale-105'
                     }`}
+                  />
+                )}
+
+                {/* Water drop optical reflection bloom */}
+                {isSlotActive && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-1.5 rounded-full bg-pink-400/50 dark:bg-pink-400/35 blur-xs mix-blend-overlay pointer-events-none animate-pulse"
                   />
                 )}
 

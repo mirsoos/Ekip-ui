@@ -12,6 +12,7 @@ import { ProfileScreen } from '@/screens/ProfileScreen';
 import { ActivityScreen } from '@/screens/ActivityScreen';
 import { ChatListScreen, ConversationScreen } from '@/screens/ChatScreens';
 import { NotificationsScreen } from '@/screens/NotificationsScreen';
+import { NotificationsSheet } from '@/components/notifications/NotificationsSheet';
 import { AIAssistant } from '@/screens/AIAssistant';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { PlansScreen } from '@/screens/PlansScreen';
@@ -51,6 +52,8 @@ function EkipApp() {
   const [tab, setTab] = useState<TabKey>('discover');
   const [screen, setScreen] = useState<Screen>({ name: 'discover' });
   const [history, setHistory] = useState<Screen[]>([]);
+
+  const [isNotificationSheetOpen, setIsNotificationSheetOpen] = useState(false);
 
   const push = (s: Screen) => {
     setHistory((prev) => [...prev, screen]);
@@ -143,7 +146,7 @@ function EkipApp() {
               onOpenProfile={(uid) => push({ name: 'profile', userId: uid })}
               onOpenOwnProfile={() => { setTab('profile'); setHistory([]); setScreen({ name: 'profile', userId: 'me' }); }}
               onOpenAI={() => push({ name: 'ai' })}
-              onOpenNotifications={() => push({ name: 'notifications' })}
+              onOpenNotifications={() => setIsNotificationSheetOpen(true)}
             />
           )}
           {screen.name === 'group' && (
@@ -189,13 +192,13 @@ function EkipApp() {
             <ActivityScreen
               onOpenGroup={(g) => push({ name: 'group', group: g })}
               onOpenProfile={(uid) => push({ name: 'profile', userId: uid })}
-              onOpenNotifications={() => push({ name: 'notifications' })}
+              onOpenNotifications={() => setIsNotificationSheetOpen(true)}
             />
           )}
           {screen.name === 'chatList' && (
             <ChatListScreen
               onOpenConversation={(id) => push({ name: 'conversation', conversationId: id })}
-              onOpenNotifications={() => push({ name: 'notifications' })}
+              onOpenNotifications={() => setIsNotificationSheetOpen(true)}
             />
           )}
           {screen.name === 'conversation' && (
@@ -236,6 +239,18 @@ function EkipApp() {
       </SwipeNavigationContainer>
 
       {showBottomNav && <BottomNav active={tab} onChange={switchTab} />}
+
+      <NotificationsSheet
+        open={isNotificationSheetOpen}
+        onClose={() => setIsNotificationSheetOpen(false)}
+        onOpenConversation={(id) => push({ name: 'conversation', conversationId: id })}
+        onOpenGroup={(g) => push({ name: 'group', group: g })}
+        onOpenSettings={() => {
+          setIsNotificationSheetOpen(false);
+          push({ name: 'settings' });
+          push({ name: 'notifications' });
+        }}
+      />
 
     </div>
   );

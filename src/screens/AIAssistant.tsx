@@ -71,9 +71,17 @@ export function AIAssistant({ onBack }: AIAssistantProps) {
   const Send = getIcon('Send');
   const Sparkles = getIcon('Sparkles');
 
+  const timerRef = useRef<number | null>(null);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, typing]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -81,11 +89,13 @@ export function AIAssistant({ onBack }: AIAssistantProps) {
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setTyping(true);
-    setTimeout(() => {
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => {
       const res = getAIResponse(text);
       const aiMsg: AIMessage = { id: `a-${Date.now()}`, role: 'ai', body: res.body, chips: res.chips };
       setMessages((prev) => [...prev, aiMsg]);
       setTyping(false);
+      timerRef.current = null;
     }, 1200);
   };
 
